@@ -138,13 +138,21 @@ export default function MeshCarousel() {
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: !isMobileGpu, // antialias is expensive — drop on mobile
-      premultipliedAlpha: true,
+      // premultipliedAlpha:false matches how the fragment shader outputs
+      // color (un-pre-multiplied) — otherwise CSS compositing darkens
+      // edge / fade pixels because RGB is interpreted as already
+      // multiplied by alpha.
+      premultipliedAlpha: false,
       powerPreference: "high-performance",
     });
     renderer.setPixelRatio(
       isMobileGpu ? 1 : Math.min(window.devicePixelRatio || 1, 2)
     );
     renderer.setClearColor(0x000000, 0);
+    // Explicit sRGB output — default in r152+ but set it loudly so any
+    // future Three.js bump doesn't silently change the pipeline and
+    // double-darken the textures (sRGB sampled, output as if linear).
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
 
     const canvas = renderer.domElement;
     container.appendChild(canvas);
