@@ -10,7 +10,6 @@ import TitleProvider from "@/components/TitleProvider";
 import PersistentTitle from "@/components/PersistentTitle";
 import Loader from "@/components/Loader";
 import ThemeProvider from "@/components/ThemeProvider";
-import BackgroundNoise from "@/components/BackgroundNoise";
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
 
@@ -76,7 +75,6 @@ export default function RootLayout({
       <body className="min-h-svh text-foreground">
         <ThemeProvider>
           <SmoothScroll />
-          <BackgroundNoise />
           <CustomCursor />
           <Loader />
           <TitleProvider>
