@@ -24,7 +24,17 @@ export default function TransitionLink({
   const onClick = async (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-    if (href === pathname) return;
+
+    // Normalize trailing slashes so /about and /about/ compare equal
+    // (Next.js static export adds them; usePathname doesn't always).
+    const norm = (s: string) => s.replace(/\/$/, "") || "/";
+    if (norm(href) === norm(pathname)) {
+      // Already on this page — block the click entirely so the cover
+      // animation doesn't fire (with no route change to reveal against,
+      // the overlay gets stuck on screen).
+      e.preventDefault();
+      return;
+    }
 
     e.preventDefault();
 
