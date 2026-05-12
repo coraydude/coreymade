@@ -68,10 +68,12 @@ function computeTopPx(isCase: boolean): number {
 
   // Case body padding-top mirrors what's set in app/work/[slug]/page.tsx:
   //   • Desktop ≥ 768px : pt-[50svh]
-  //   • Mobile           : pt-[35svh]
+  //   • Mobile           : pt-[42svh]   ← pulled down from 35svh so the
+  //                                       title has room to sit lower
+  //                                       without crowding the back button.
   // Anchor the title so its bottom sits TITLE_BODY_GAP_PX above content,
   // with a MIN_TOP_PX floor so we don't tuck under the nav.
-  const contentTopFrac = isDesktop ? 0.5 : 0.35;
+  const contentTopFrac = isDesktop ? 0.5 : 0.42;
   const contentTopPx = vh * contentTopFrac;
   const top = contentTopPx - TITLE_BODY_GAP_PX - titleHeightPx;
   return Math.max(MIN_TOP_PX, top);
