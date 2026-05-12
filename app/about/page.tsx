@@ -50,23 +50,18 @@ export default function AboutPage() {
 
       {/* ─────────────── Bio ─────────────── */}
       <section className="px-6 md:px-10 py-20 md:py-28 border-t border-rule">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
-          <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
-            Bio
-          </div>
-          <div className="md:col-span-9 space-y-8 max-w-3xl">
-            <p className="text-[22px] md:text-[32px] leading-[1.22] tracking-[-0.015em] font-light">
-              I work at the seam of product, motion, and brand — shipping
-              interfaces that hold up to scrutiny: precise, calm, and
-              memorable in the small moments.
-            </p>
-            <p className="text-[16px] md:text-[18px] leading-[1.55] text-foreground/75 font-light">
-              Recent collaborations have ranged from early-stage product teams
-              to in-house brand systems. I work end to end — strategy, IA,
-              interaction, motion direction, and front-end implementation
-              when it sharpens the result.
-            </p>
-          </div>
+        <div className="max-w-[1400px] space-y-8">
+          <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
+            I work at the seam of product, motion, and brand — shipping
+            interfaces that hold up to scrutiny: precise, calm, and
+            memorable in the small moments.
+          </p>
+          <p className="text-[16px] md:text-[18px] leading-[1.55] text-foreground/70 font-light max-w-3xl">
+            Recent collaborations have ranged from early-stage product teams
+            to in-house brand systems. I work end to end — strategy, IA,
+            interaction, motion direction, and front-end implementation
+            when it sharpens the result.
+          </p>
         </div>
       </section>
 
