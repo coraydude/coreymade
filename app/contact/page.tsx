@@ -48,7 +48,7 @@ export default function ContactPage() {
           Status
         </div>
         <div className="md:col-span-9 max-w-3xl">
-          <p className="text-[20px] md:text-[26px] leading-[1.3] tracking-[-0.01em] font-light">
+          <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
             <span className="inline-flex items-center gap-2 mr-2 align-middle">
               <span className="relative inline-flex h-2 w-2">
                 <span className="absolute inset-0 rounded-full bg-foreground animate-ping opacity-60" />
