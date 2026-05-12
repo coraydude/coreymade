@@ -51,6 +51,7 @@ const FRAG = /* glsl */ `
   uniform vec2  uMeshSize;
   uniform float uAlpha;
   uniform float uLoaded;
+  uniform float uVelocity;
 
   varying vec2  vUv;
   varying float vCenter;
@@ -75,7 +76,16 @@ const FRAG = /* glsl */ `
       vUv.y * ratio.y + (1.0 - ratio.y) * 0.5
     );
 
-    vec4 texel = texture2D(uMap, baseUV);
+    // Scroll-velocity displacement — sample R/G/B at horizontal offsets
+    // that scale with velocity for a chromatic aberration / smear effect
+    // during drag and inertial throws. uVelocity = target - progress, so
+    // it's 0 at rest and grows positive/negative with scroll direction.
+    float vel = clamp(uVelocity, -3.0, 3.0);
+    float chroma = vel * 0.015;
+    vec4 sampleR = texture2D(uMap, baseUV + vec2(chroma, 0.0));
+    vec4 sampleG = texture2D(uMap, baseUV);
+    vec4 sampleB = texture2D(uMap, baseUV - vec2(chroma, 0.0));
+    vec4 texel = vec4(sampleR.r, sampleG.g, sampleB.b, sampleG.a);
 
     float rect = rectMask(vUv, 0.008);
     // linearToOutputTexel is injected by Three.js based on the
@@ -276,6 +286,7 @@ export default function MeshCarousel() {
           uIndex: { value: k },
           uAlpha: { value: 1 },
           uLoaded: { value: 0 },
+          uVelocity: { value: 0 },
         },
       });
 
@@ -698,6 +709,7 @@ export default function MeshCarousel() {
 
         const u = s.material.uniforms;
         u.uBend.value = bend;
+        u.uVelocity.value = velocity;
         (u.uMeshSize.value as THREE.Vector2).set(cardWWorld, cardHWorld);
 
         s.loaded = lerp(s.loaded, s.loadedTarget, 1 - Math.exp(-7 * dt));
