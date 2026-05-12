@@ -34,7 +34,12 @@ export default async function ProjectPage({
   const project = PROJECTS.find((p) => p.slug === slug);
   if (!project) notFound();
 
-  const blocks = [project.image, project.image, project.image, project.image];
+  // Use the project's own image stack; fall back to the cover if no
+  // explicit case-study images are set in lib/projects.ts.
+  const blocks =
+    project.images && project.images.length > 0
+      ? project.images
+      : [project.image];
   const currentIdx = PROJECTS.findIndex((p) => p.slug === project.slug);
   const nextProject =
     PROJECTS[(currentIdx + 1) % PROJECTS.length];
