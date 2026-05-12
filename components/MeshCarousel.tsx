@@ -152,9 +152,10 @@ export default function MeshCarousel() {
       premultipliedAlpha: false,
       powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(
-      isMobileGpu ? 1 : Math.min(window.devicePixelRatio || 1, 2)
-    );
+    // Cap at 2× on every device. Mobile retina (typically devicePixelRatio
+    // 2–3) renders sharp without paying the full 3× shader cost; desktop
+    // hi-DPI displays clamp at 2 for the same reason.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     // Explicit sRGB output — default in r152+ but set it loudly so any
     // future Three.js bump doesn't silently change the pipeline and
