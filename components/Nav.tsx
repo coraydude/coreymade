@@ -100,7 +100,7 @@ export default function Nav() {
             <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
               →
             </span>
-            <span>Ctc</span>
+            <span>Wrt</span>
           </TransitionLink>
           <ThemeToggle />
         </nav>
