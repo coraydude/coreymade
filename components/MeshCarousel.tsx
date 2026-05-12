@@ -678,9 +678,10 @@ export default function MeshCarousel() {
       }
 
       // Constant rolling-pin — bend is always-on, not tied to drag velocity.
-      // Smaller on mobile so the perspective magnification doesn't push the
-      // centered card past the viewport edges.
-      const bend = viewport.w < 768 ? 0.55 : 1.0;
+      // Disabled entirely on mobile: small viewports + portrait cards make
+      // the perspective magnification crowd the screen and read as jitter
+      // rather than depth.
+      const bend = viewport.w < 768 ? 0 : 1.0;
 
       hoverIdx = -1;
       const worldPointerX = (pointerNDC.x * viewport.worldW) / 2;
