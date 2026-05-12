@@ -55,6 +55,8 @@ const TITLE_BREAKPOINT = "(min-width: 768px)";
 // Minimum top inset so the title doesn't crash into the nav on tall
 // narrow viewports.
 const MIN_TOP_PX = 96;
+// Gap between the bottom of the title and the start of the case body.
+const TITLE_BODY_GAP_PX = 40;
 
 function computeTopPx(isCase: boolean): number {
   if (typeof window === "undefined") return 0;
@@ -62,17 +64,17 @@ function computeTopPx(isCase: boolean): number {
   const vw = window.innerWidth;
   const isDesktop = window.matchMedia(TITLE_BREAKPOINT).matches;
   const titleHeightPx = vw * (isDesktop ? 0.14 : 0.22);
-  if (!isCase) {
-    // Home page suppresses the title — value doesn't matter visually,
-    // but keep it sane.
-    return 0;
-  }
-  // Case pages: the body content starts at `pt-[50svh]`, so the top half
-  // of the viewport is reserved for the title. Center the title wrapper
-  // inside that top half. Always at least MIN_TOP_PX from the top so we
-  // clear the nav on tall narrow screens.
-  const centered = (vh * 0.5 - titleHeightPx) / 2;
-  return Math.max(MIN_TOP_PX, centered);
+  if (!isCase) return 0;
+
+  // Case body padding-top mirrors what's set in app/work/[slug]/page.tsx:
+  //   • Desktop ≥ 768px : pt-[50svh]
+  //   • Mobile           : pt-[35svh]
+  // Anchor the title so its bottom sits TITLE_BODY_GAP_PX above content,
+  // with a MIN_TOP_PX floor so we don't tuck under the nav.
+  const contentTopFrac = isDesktop ? 0.5 : 0.35;
+  const contentTopPx = vh * contentTopFrac;
+  const top = contentTopPx - TITLE_BODY_GAP_PX - titleHeightPx;
+  return Math.max(MIN_TOP_PX, top);
 }
 
 const useIsoLayoutEffect =

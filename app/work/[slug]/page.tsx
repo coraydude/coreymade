@@ -44,7 +44,10 @@ export default async function ProjectPage({
       <BackToWork />
 
       <CaseStudyContent>
-        <div className="pt-[50svh]">
+        {/* Padding-top must stay in sync with computeTopPx() in
+            components/PersistentTitle.tsx — that fn anchors the title to
+            this content top with a 40px gap. */}
+        <div className="pt-[35svh] md:pt-[50svh]">
           <div data-case-body>
             <div className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28">
               <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
