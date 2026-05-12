@@ -209,12 +209,12 @@ export default function MeshCarousel() {
       const worldH = 2 * Math.tan(fov / 2) * camera.position.z;
       const worldW = worldH * (w / h);
       const worldPerPx = worldH / h;
-      // Card geometry (portrait 9:10 — 20% wider than the previous 3:4).
+      // Card geometry — slightly landscape (width = 1.08 * height).
       //   • Mobile (< 768px): card width is the driver — fits ~1.3 cards
-      //     across so neighbors peek in. Tight 15% gap, taller card.
-      //   • Desktop: height-limited card, generous 65% gap, smaller card
-      //     so 2–3 are visible with breathing room.
-      const ASPECT = 0.9;
+      //     across so neighbors peek in. Tight 15% gap.
+      //   • Desktop: height-limited card, generous 65% gap, so 2–3 are
+      //     visible with breathing room.
+      const ASPECT = 1.08;
       const isMobile = w < 768;
       let cardWpx: number;
       let cardHpx: number;
