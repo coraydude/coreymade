@@ -78,7 +78,14 @@ const FRAG = /* glsl */ `
     vec4 texel = texture2D(uMap, baseUV);
 
     float rect = rectMask(vUv, 0.008);
-    gl_FragColor = vec4(texel.rgb, texel.a * rect * uAlpha * uLoaded);
+    // linearToOutputTexel is injected by Three.js based on the
+    // renderer's outputColorSpace (SRGBColorSpace here). Built-in
+    // materials call it for you; ShaderMaterial does not, so without
+    // this the linear texture samples display ~gamma-2.2 darker than
+    // the source.
+    gl_FragColor = linearToOutputTexel(
+      vec4(texel.rgb, texel.a * rect * uAlpha * uLoaded)
+    );
   }
 `;
 
@@ -247,6 +254,11 @@ export default function MeshCarousel() {
       texture.magFilter = THREE.LinearFilter;
       texture.wrapS = THREE.ClampToEdgeWrapping;
       texture.wrapT = THREE.ClampToEdgeWrapping;
+      // Texture stored as sRGB on the GPU → sampling auto-converts to
+      // linear in the shader. Pair with the explicit linearToOutputTexel
+      // call in the fragment shader so the output gets re-encoded to
+      // sRGB. Without that call, ShaderMaterial outputs linear values
+      // directly and the image displays double-darkened.
       texture.colorSpace = THREE.SRGBColorSpace;
 
       const material = new THREE.ShaderMaterial({
