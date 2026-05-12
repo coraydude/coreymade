@@ -49,13 +49,12 @@ function resolveText(
   return "";
 }
 
-const CASE_DROP_PX = 100;
 const TITLE_SIZE_MOBILE = "22vw";
 const TITLE_SIZE_DESKTOP = "14vw";
 const TITLE_BREAKPOINT = "(min-width: 768px)";
-
-const CARD_HEIGHT_VW = 20.25;
-const STACK_GAP_PX = 32;
+// Minimum top inset so the title doesn't crash into the nav on tall
+// narrow viewports.
+const MIN_TOP_PX = 96;
 
 function computeTopPx(isCase: boolean): number {
   if (typeof window === "undefined") return 0;
@@ -63,9 +62,17 @@ function computeTopPx(isCase: boolean): number {
   const vw = window.innerWidth;
   const isDesktop = window.matchMedia(TITLE_BREAKPOINT).matches;
   const titleHeightPx = vw * (isDesktop ? 0.14 : 0.22);
-  const cardHeightPx = vw * (CARD_HEIGHT_VW / 100);
-  const pairHeightPx = titleHeightPx + STACK_GAP_PX + cardHeightPx;
-  return (vh - pairHeightPx) / 2 + (isCase ? CASE_DROP_PX : 0);
+  if (!isCase) {
+    // Home page suppresses the title — value doesn't matter visually,
+    // but keep it sane.
+    return 0;
+  }
+  // Case pages: the body content starts at `pt-[50svh]`, so the top half
+  // of the viewport is reserved for the title. Center the title wrapper
+  // inside that top half. Always at least MIN_TOP_PX from the top so we
+  // clear the nav on tall narrow screens.
+  const centered = (vh * 0.5 - titleHeightPx) / 2;
+  return Math.max(MIN_TOP_PX, centered);
 }
 
 const useIsoLayoutEffect =
