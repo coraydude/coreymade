@@ -44,9 +44,6 @@ export default function ContactPage() {
 
       {/* ─────────────── Status / availability ─────────────── */}
       <div className="mt-12 md:mt-20 max-w-[1400px]">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-muted mb-6 md:mb-8">
-          Status
-        </div>
         <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
           <span className="inline-flex items-center gap-2 mr-2 align-middle">
             <span className="relative inline-flex h-2 w-2">
