@@ -134,12 +134,19 @@ export default function MeshCarousel() {
     const N = PROJECTS.length;
     const TOTAL = N * COPIES;
 
+    // Mobile-class device gate — used to scale GPU cost (DPR, tessellation)
+    // so the carousel doesn't drop frames on phone GPUs.
+    const isMobileGpu = window.innerWidth < 768;
+
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: true,
+      antialias: !isMobileGpu, // antialias is expensive — drop on mobile
       premultipliedAlpha: true,
+      powerPreference: "high-performance",
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(
+      isMobileGpu ? 1 : Math.min(window.devicePixelRatio || 1, 2)
+    );
     renderer.setClearColor(0x000000, 0);
 
     const canvas = renderer.domElement;
@@ -155,9 +162,15 @@ export default function MeshCarousel() {
 
     const scene = new THREE.Scene();
 
-    // Heavy tessellation — the gaussian curve needs enough vertices to
-    // read as smooth across each card.
-    const geometry = new THREE.PlaneGeometry(1, 1, 48, 64);
+    // Mesh tessellation — high enough on desktop for a smooth gaussian
+    // curve, much lower on mobile (the bend doesn't need that many segments
+    // to read fine, and 48×64 × N meshes blows vertex budgets on phones).
+    const geometry = new THREE.PlaneGeometry(
+      1,
+      1,
+      isMobileGpu ? 16 : 48,
+      isMobileGpu ? 20 : 64
+    );
 
     // Viewport + derived layout numbers, all in a single shared object so
     // hot-path code (tick, pointer events) can read them without recomputing.
@@ -183,12 +196,28 @@ export default function MeshCarousel() {
       const worldH = 2 * Math.tan(fov / 2) * camera.position.z;
       const worldW = worldH * (w / h);
       const worldPerPx = worldH / h;
-      // Card geometry (portrait 3:4) — height-limited on wide viewports,
-      // width-limited on narrow ones.
+      // Card geometry (portrait 3:4).
+      //   • Mobile (< 768px): card width is the driver — fits ~1.3 cards
+      //     across so neighbors peek in. Tight 15% gap, taller card.
+      //   • Desktop: height-limited card, generous 65% gap, smaller card
+      //     so 2–3 are visible with breathing room.
       const ASPECT = 3 / 4;
-      const cardHpx = Math.min(h * 0.48, w);
-      const cardWpx = cardHpx * ASPECT;
-      const slotPx = cardWpx * 1.65;
+      const isMobile = w < 768;
+      let cardWpx: number;
+      let cardHpx: number;
+      let slotPx: number;
+      if (isMobile) {
+        cardWpx = w * 0.7;
+        cardHpx = Math.min(cardWpx / ASPECT, h * 0.7);
+        // Re-derive width from the (possibly capped) height so the 3:4
+        // aspect stays exact.
+        cardWpx = cardHpx * ASPECT;
+        slotPx = cardWpx * 1.15;
+      } else {
+        cardHpx = Math.min(h * 0.48, w);
+        cardWpx = cardHpx * ASPECT;
+        slotPx = cardWpx * 1.65;
+      }
       viewport = {
         w,
         h,
@@ -283,6 +312,13 @@ export default function MeshCarousel() {
     let releasedAt = -Infinity;
     let wheelLastAt = -Infinity;
 
+    // Velocity samples for an inertial swipe throw. We record the last ~5
+    // pointer positions over a 100ms window so we know the *real* finger
+    // velocity at the moment of release, not just the cumulative drag
+    // delta (which feels dead for quick mobile flicks).
+    const recentMoves: { x: number; t: number }[] = [];
+    const VELOCITY_WINDOW_MS = 100;
+
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0 && e.pointerType === "mouse") return;
       isDown = true;
@@ -290,6 +326,8 @@ export default function MeshCarousel() {
       downY = e.clientY;
       downAt = performance.now();
       dragStartTarget = targetProgress;
+      recentMoves.length = 0;
+      recentMoves.push({ x: e.clientX, t: downAt });
       canvas.setPointerCapture?.(e.pointerId);
       container.style.cursor = "grabbing";
     };
@@ -303,6 +341,16 @@ export default function MeshCarousel() {
       if (isDown) {
         const dx = e.clientX - downX;
         targetProgress = dragStartTarget - dx / viewport.slotPx;
+        // Stash for velocity calc on release; drop samples older than
+        // VELOCITY_WINDOW_MS so direction changes don't contaminate.
+        const now = performance.now();
+        recentMoves.push({ x: e.clientX, t: now });
+        while (
+          recentMoves.length > 1 &&
+          now - recentMoves[0].t > VELOCITY_WINDOW_MS
+        ) {
+          recentMoves.shift();
+        }
       }
     };
 
@@ -368,8 +416,27 @@ export default function MeshCarousel() {
           }
         }
       } else {
-        const throwAmount = (targetProgress - dragStartTarget) * 0.22;
-        targetProgress = Math.round(targetProgress + throwAmount);
+        // Inertial throw based on REAL finger velocity at release.
+        // Sample the px/sec over the last ~100ms of pointermove events,
+        // project ~350ms of natural decay, then snap to the nearest card.
+        // This makes quick mobile flicks actually carry between cards
+        // instead of relying on the cumulative drag delta (which is small
+        // for fast short flicks and was effectively dead before).
+        let throwCards = 0;
+        if (recentMoves.length >= 2) {
+          const first = recentMoves[0];
+          const last = recentMoves[recentMoves.length - 1];
+          const dtSec = (last.t - first.t) / 1000;
+          if (dtSec > 0) {
+            const pxPerSec = (last.x - first.x) / dtSec;
+            // Projection horizon: ~350ms of finger inertia. Negative because
+            // dragging right (positive dx) should DECREASE progress (cards
+            // move left visually with finger).
+            throwCards = -(pxPerSec * 0.35) / viewport.slotPx;
+          }
+        }
+        targetProgress = Math.round(targetProgress + throwCards);
+        recentMoves.length = 0;
       }
     };
 
@@ -587,9 +654,9 @@ export default function MeshCarousel() {
       }
 
       // Constant rolling-pin — bend is always-on, not tied to drag velocity.
-      // The gaussian curve in the vertex shader is centered at screen-X = 0,
-      // so each card passes through the bend as it scrolls through center.
-      const bend = 1.0;
+      // Smaller on mobile so the perspective magnification doesn't push the
+      // centered card past the viewport edges.
+      const bend = viewport.w < 768 ? 0.55 : 1.0;
 
       hoverIdx = -1;
       const worldPointerX = (pointerNDC.x * viewport.worldW) / 2;
