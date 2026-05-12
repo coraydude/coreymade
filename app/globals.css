@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html[data-theme="dark"] {
+  --background: #000000;
+  --foreground: #ededed;
+  --muted: #777777;
+  --rule: rgba(255, 255, 255, 0.12);
+}
+
+html[data-theme="light"] {
+  --background: #f1ecdf;
+  --foreground: #0a0a0a;
+  --muted: #555555;
+  --rule: rgba(0, 0, 0, 0.14);
+}
+
+html:not([data-theme]) {
+  --background: #000000;
+  --foreground: #ededed;
+  --muted: #777777;
+  --rule: rgba(255, 255, 255, 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-display);
 }
 
 body {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
+html {
   background: var(--background);
+  overscroll-behavior: none;
+  transition: background-color 0.35s ease;
+}
+
+body {
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  font-feature-settings: "ss01", "ss02";
+  -webkit-font-smoothing: antialiased;
+  transition: color 0.35s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html,
+  body,
+  a,
+  button {
+    cursor: none;
+  }
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+::selection {
+  background: #ededed;
+  color: #050505;
+}
+
+@keyframes view-transition-fade-in {
+  from { opacity: 0; }
+}
+@keyframes view-transition-fade-out {
+  to { opacity: 0; }
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-group(*) {
+  animation-duration: 720ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+::view-transition-image-pair(*) {
+  isolation: isolate;
+}
+
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: 720ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
 }

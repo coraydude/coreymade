@@ -1,0 +1,118 @@
+export const metadata = {
+  title: "Contact — Corey Haggard",
+};
+
+const CHANNELS = [
+  {
+    label: "Email",
+    value: "hello@coreyhaggard.com",
+    href: "mailto:hello@coreyhaggard.com",
+  },
+  {
+    label: "Twitter / X",
+    value: "@coreyhaggard",
+    href: "https://twitter.com/coreyhaggard",
+  },
+  {
+    label: "Instagram",
+    value: "@coreyhaggard",
+    href: "https://instagram.com/coreyhaggard",
+  },
+  {
+    label: "Read.cv",
+    value: "read.cv/coreyhaggard",
+    href: "https://read.cv/coreyhaggard",
+  },
+];
+
+export default function ContactPage() {
+  return (
+    <main className="min-h-svh px-6 md:px-10 pt-32 pb-24 overflow-x-hidden">
+      {/* ─────────────── Big headline ─────────────── */}
+      <h1
+        className="uppercase tracking-[-0.01em]"
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "clamp(72px, 17vw, 320px)",
+          lineHeight: 0.85,
+        }}
+      >
+        Let&rsquo;s work
+        <br />
+        Together.
+      </h1>
+
+      {/* ─────────────── Status / availability ─────────────── */}
+      <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
+        <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
+          Status
+        </div>
+        <div className="md:col-span-9 max-w-3xl">
+          <p className="text-[20px] md:text-[26px] leading-[1.3] tracking-[-0.01em] font-light">
+            <span className="inline-flex items-center gap-2 mr-2 align-middle">
+              <span className="relative inline-flex h-2 w-2">
+                <span className="absolute inset-0 rounded-full bg-foreground animate-ping opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-foreground" />
+              </span>
+              <span className="text-[11px] uppercase tracking-[0.18em] text-muted">
+                Open
+              </span>
+            </span>
+            Currently booking early-stage product + brand engagements for
+            Q3 2026 and beyond. Quick replies on email, slower on socials.
+          </p>
+        </div>
+      </div>
+
+      {/* ─────────────── Channels (display only, no form) ─────────────── */}
+      <div className="mt-20 md:mt-28 grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
+        <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
+          Channels
+        </div>
+        <ul className="md:col-span-9 border-t border-rule">
+          {CHANNELS.map((c) => (
+            <li key={c.label}>
+              <a
+                href={c.href}
+                target={c.href.startsWith("http") ? "_blank" : undefined}
+                rel="noopener noreferrer"
+                data-cursor={c.label}
+                className="group flex items-baseline justify-between border-b border-rule py-5 md:py-7"
+              >
+                <span className="flex items-baseline gap-6 md:gap-12">
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-muted w-28">
+                    {c.label}
+                  </span>
+                  <span
+                    className="tracking-[-0.01em] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-2"
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "clamp(28px, 4vw, 64px)",
+                      lineHeight: 1,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {c.value}
+                  </span>
+                </span>
+                <span className="hidden md:inline text-[11px] uppercase tracking-[0.18em] text-muted opacity-0 -translate-x-3 transition-all duration-500 group-hover:opacity-100 group-hover:translate-x-0">
+                  →
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* ─────────────── Footer note ─────────────── */}
+      <div className="mt-20 grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
+        <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
+          Based
+        </div>
+        <div className="md:col-span-9 text-[14px] md:text-[15px] text-foreground/70 font-light max-w-2xl">
+          Tampa, Florida — working with teams worldwide.
+        </div>
+      </div>
+    </main>
+  );
+}
