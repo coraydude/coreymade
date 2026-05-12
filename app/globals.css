@@ -5,6 +5,7 @@ html[data-theme="dark"] {
   --foreground: #ededed;
   --muted: #777777;
   --rule: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
 }
 
 html[data-theme="light"] {
@@ -12,6 +13,7 @@ html[data-theme="light"] {
   --foreground: #0a0a0a;
   --muted: #555555;
   --rule: rgba(0, 0, 0, 0.14);
+  color-scheme: light;
 }
 
 html:not([data-theme]) {
@@ -19,6 +21,14 @@ html:not([data-theme]) {
   --foreground: #ededed;
   --muted: #777777;
   --rule: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}
+
+/* Kill iOS Safari's gray tap-highlight overlay that flashes on link taps,
+   and prevent the system's white "loading" color from briefly showing
+   during client-side route transitions. */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 @theme inline {

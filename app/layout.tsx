@@ -51,6 +51,12 @@ export const metadata: Metadata = {
   title: "Corey Haggard — Digital Designer",
   description:
     "Portfolio of Corey Haggard. Digital designer, motion thinker and product builder.",
+  // Adaptive theme-color stops the white nav-bar flash Chrome paints
+  // during client-side route transitions on dark themes.
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+    { media: "(prefers-color-scheme: light)", color: "#f1ecdf" },
+  ],
 };
 
 export default function RootLayout({
