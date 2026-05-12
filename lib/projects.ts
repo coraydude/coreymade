@@ -14,7 +14,7 @@ export type Project = {
 export const PROJECTS: Project[] = [
   {
     slug: "dutchie",
-    title: "Dutchie",
+    title: "Marketplace",
     year: "2024",
     category: "Product · Web",
     image: "/projects/dutchie.png",
