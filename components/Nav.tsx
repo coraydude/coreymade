@@ -57,13 +57,13 @@ export default function Nav() {
               TW
             </a>
             <a
-              href="https://read.cv/coreyhaggard"
+              href="https://www.linkedin.com/in/coreyhaggard"
               target="_blank"
               rel="noopener noreferrer"
-              data-cursor="Read.cv"
+              data-cursor="LinkedIn"
               className="hover:opacity-70 transition-opacity"
             >
-              CV
+              LI
             </a>
           </div>
         </div>

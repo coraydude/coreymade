@@ -19,9 +19,9 @@ const CHANNELS = [
     href: "https://instagram.com/coreyhaggard",
   },
   {
-    label: "Read.cv",
-    value: "read.cv/coreyhaggard",
-    href: "https://read.cv/coreyhaggard",
+    label: "LinkedIn",
+    value: "in/coreyhaggard",
+    href: "https://www.linkedin.com/in/coreyhaggard",
   },
 ];
 
