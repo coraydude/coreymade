@@ -12,8 +12,7 @@ export const PROJECTS: Project[] = [
     title: "Dutchie",
     year: "2024",
     category: "Product · Web",
-    image:
-      "https://images.unsplash.com/photo-1530435460869-d13625c69bbf?auto=format&fit=crop&w=1600&q=80",
+    image: "/projects/dutchie.png",
   },
   {
     slug: "pima",

@@ -77,9 +77,6 @@ const FRAG = /* glsl */ `
 
     vec4 texel = texture2D(uMap, baseUV);
 
-    // Tiny depth cue — cards outside the bend zone darken a touch.
-    texel.rgb *= mix(0.92, 1.0, vCenter);
-
     float rect = rectMask(vUv, 0.008);
     gl_FragColor = vec4(texel.rgb, texel.a * rect * uAlpha * uLoaded);
   }
@@ -274,10 +271,17 @@ export default function MeshCarousel() {
       });
     }
 
+    // Next.js basePath isn't applied to raw `new Image()` requests, so
+    // we prefix local URLs (those starting with "/") manually. External
+    // URLs (http/https) are used as-is.
+    const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
+    const resolveImageSrc = (src: string) =>
+      src.startsWith("http") ? src : `${BASE_PATH}${src}`;
+
     PROJECTS.forEach((p, i) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = p.image;
+      img.src = resolveImageSrc(p.image);
       img.onload = () => {
         slots.forEach((s) => {
           if (s.projectIdx === i) {
