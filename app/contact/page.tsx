@@ -43,25 +43,23 @@ export default function ContactPage() {
       </h1>
 
       {/* ─────────────── Status / availability ─────────────── */}
-      <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
-        <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
+      <div className="mt-12 md:mt-20 max-w-[1400px]">
+        <div className="text-[11px] uppercase tracking-[0.18em] text-muted mb-6 md:mb-8">
           Status
         </div>
-        <div className="md:col-span-9 max-w-3xl">
-          <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
-            <span className="inline-flex items-center gap-2 mr-2 align-middle">
-              <span className="relative inline-flex h-2 w-2">
-                <span className="absolute inset-0 rounded-full bg-foreground animate-ping opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-foreground" />
-              </span>
-              <span className="text-[11px] uppercase tracking-[0.18em] text-muted">
-                Open
-              </span>
+        <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
+          <span className="inline-flex items-center gap-2 mr-2 align-middle">
+            <span className="relative inline-flex h-2 w-2">
+              <span className="absolute inset-0 rounded-full bg-foreground animate-ping opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-foreground" />
             </span>
-            Currently booking early-stage product + brand engagements for
-            Q3 2026 and beyond. Quick replies on email, slower on socials.
-          </p>
-        </div>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-muted">
+              Open
+            </span>
+          </span>
+          Currently booking early-stage product + brand engagements for
+          Q3 2026 and beyond. Quick replies on email, slower on socials.
+        </p>
       </div>
 
       {/* ─────────────── Channels (display only, no form) ─────────────── */}
