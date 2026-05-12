@@ -60,7 +60,20 @@ export default function CustomCursor() {
         ringRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) translate(-50%, -50%) scale(${hoverScaleEased})`;
       }
       if (labelRef.current) {
-        labelRef.current.style.transform = `translate3d(${ring.x + 28}px, ${ring.y - 8}px, 0)`;
+        // Cache the label's measured width so we know exactly when it'd
+        // run off the right edge and need to flip to the left side of
+        // the cursor instead of trailing it.
+        const labelWidth = labelRef.current.offsetWidth || 0;
+        const flipLeft =
+          ring.x + 28 + labelWidth > window.innerWidth - 12;
+        if (flipLeft) {
+          // Anchor label's right edge to (cursor.x - 28). `translate(-100%)`
+          // shifts the box leftward by its own width so it grows toward
+          // the cursor, not off-screen.
+          labelRef.current.style.transform = `translate3d(${ring.x - 28}px, ${ring.y - 8}px, 0) translate(-100%, 0)`;
+        } else {
+          labelRef.current.style.transform = `translate3d(${ring.x + 28}px, ${ring.y - 8}px, 0)`;
+        }
       }
       rafId = requestAnimationFrame(tick);
     };
