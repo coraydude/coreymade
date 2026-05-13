@@ -25,9 +25,6 @@ export default function CaseStudyContent({ children }: Props) {
     <div
       ref={ref}
       data-case-study-fade
-      // position + z-index so the case content sits above the global
-      // BackgroundNoise canvas (z-1). Otherwise the fixed noise layer paints
-      // on top of unpositioned text and images and tints them via overlay.
       className="relative z-[2]"
       style={{ opacity: 0, willChange: "opacity, transform" }}
     >

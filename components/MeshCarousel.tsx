@@ -42,7 +42,8 @@ const VERT = /* glsl */ `
     vCenter = g;
 
     vec3 newPos = position;
-    newPos.z += g * uBend * 1.2;
+    // Roller-pin bend disabled — uncomment to re-enable.
+    // newPos.z += g * uBend * 1.2;
 
     // Velocity-driven MESH displacement.
     //
@@ -57,11 +58,11 @@ const VERT = /* glsl */ `
     //
     // uVelocity is 0 at rest, so the mesh sits flat unless something
     // is actually moving.
-    float vel = clamp(uVelocity, -3.0, 3.0);
+    float vel = clamp(uVelocity, -1.0, 1.0);
     float velMag = abs(vel);
     float yProfile = 1.0 - position.y * position.y * 4.0;
-    newPos.x += vel * yProfile * 0.22;
-    newPos.z += velMag * 0.18;
+    newPos.x += vel * yProfile * 0.10;
+    newPos.z += velMag * 0.08;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
   }
@@ -98,14 +99,13 @@ const FRAG = /* glsl */ `
 
     vec4 texel = texture2D(uMap, baseUV);
 
-    float rect = rectMask(vUv, 0.008);
     // linearToOutputTexel is injected by Three.js based on the
     // renderer's outputColorSpace (SRGBColorSpace here). Built-in
     // materials call it for you; ShaderMaterial does not, so without
     // this the linear texture samples display ~gamma-2.2 darker than
     // the source.
     gl_FragColor = linearToOutputTexel(
-      vec4(texel.rgb, texel.a * rect * uAlpha * uLoaded)
+      vec4(texel.rgb, texel.a * uAlpha * uLoaded)
     );
   }
 `;
@@ -498,7 +498,22 @@ export default function MeshCarousel() {
       hoverIdx = -1;
     };
 
+    // Toggle the "Drag" cursor label on the container based on whether
+    // the pointer is inside the vertical band that contains the cards.
+    // Cursor scoping only — drag and wheel both work anywhere on the
+    // viewport.
+    const onContainerMove = (e: PointerEvent) => {
+      const cardHpx =
+        viewport.cardHWorld / Math.max(viewport.worldPerPx, 0.0001);
+      const top = (viewport.h - cardHpx) / 2;
+      const bottom = top + cardHpx;
+      const inBand = e.clientY >= top && e.clientY <= bottom;
+      if (inBand) container.setAttribute("data-cursor", "Drag");
+      else container.removeAttribute("data-cursor");
+    };
+
     canvas.addEventListener("pointerdown", onPointerDown);
+    container.addEventListener("pointermove", onContainerMove);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("pointercancel", onPointerUp);
@@ -790,6 +805,7 @@ export default function MeshCarousel() {
       window.removeEventListener("pointerup", onPointerUp);
       window.removeEventListener("pointercancel", onPointerUp);
       canvas.removeEventListener("pointerdown", onPointerDown);
+      container.removeEventListener("pointermove", onContainerMove);
       canvas.removeEventListener("wheel", onWheel);
       canvas.removeEventListener("pointerleave", onLeave);
 
@@ -813,7 +829,6 @@ export default function MeshCarousel() {
       <div
         ref={containerRef}
         data-carousel-fade
-        data-cursor="Drag"
         data-lenis-prevent
         className="fixed inset-0 select-none"
         style={{ zIndex: 5, touchAction: "none" }}

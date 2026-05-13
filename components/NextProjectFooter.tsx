@@ -43,6 +43,11 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     const upNextLabel = document.querySelector<HTMLElement>(
       "[data-up-next-label]"
     );
+    // The case-study WebGL canvas lives on <body> (outside the
+    // case-content wrapper that gets faded), so include it here or the
+    // old images stay visible at full opacity through the navigation
+    // and flicker to the new ones on mount.
+    const caseGl = document.querySelector<HTMLElement>("[data-case-gl]");
 
     const navigate = () => {
       // Hide PersistentTitle's wrapper across the scroll-reset → router.push
@@ -77,7 +82,7 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     const chars = splitRef.current?.chars;
     const tl = gsap.timeline({ onComplete: navigate });
 
-    const fadeTargets = [caseBody, upNextLabel].filter(
+    const fadeTargets = [caseBody, upNextLabel, caseGl].filter(
       (x): x is HTMLElement => x !== null
     );
     if (fadeTargets.length > 0) {

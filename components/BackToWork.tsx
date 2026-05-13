@@ -40,11 +40,16 @@ export default function BackToWork() {
       });
     }
 
-    const fadeEl = document.querySelector<HTMLElement>(
-      "[data-case-study-fade]"
-    );
-    if (fadeEl) {
-      gsap.to(fadeEl, {
+    // Fade both the case content wrapper AND the case-study GL canvas
+    // (which lives on <body>, outside that wrapper). Without the canvas
+    // here, the WebGL images stay at full opacity through the exit and
+    // pop on home-mount.
+    const fadeEls = [
+      document.querySelector<HTMLElement>("[data-case-study-fade]"),
+      document.querySelector<HTMLElement>("[data-case-gl]"),
+    ].filter((x): x is HTMLElement => x !== null);
+    if (fadeEls.length > 0) {
+      gsap.to(fadeEls, {
         opacity: 0,
         duration: 0.4,
         ease: "power3.in",

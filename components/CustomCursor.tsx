@@ -20,20 +20,16 @@ export default function CustomCursor() {
     let hoverScaleEased = 1;
     let labelText = "";
 
-    const onMove = (e: MouseEvent) => {
-      target.x = e.clientX;
-      target.y = e.clientY;
-    };
-
-    const onOver = (e: MouseEvent) => {
+    // Re-evaluate the data-cursor label from the element currently under
+    // the pointer. Called both on element entry (mouseover) and every
+    // mousemove so callers can toggle `data-cursor` on a stable element
+    // (e.g. a fixed full-viewport container) and have the label react.
+    const refreshCursor = (e: MouseEvent) => {
       const el = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
-      if (el) {
-        hoverScale = 2.2;
-        labelText = el.dataset.cursor || "";
-      } else {
-        hoverScale = 1;
-        labelText = "";
-      }
+      const nextLabel = el ? el.dataset.cursor || "" : "";
+      if (nextLabel === labelText) return;
+      hoverScale = el ? 2.2 : 1;
+      labelText = nextLabel;
       if (labelRef.current) {
         labelRef.current.textContent = labelText;
         labelRef.current.style.opacity = labelText ? "1" : "0";
@@ -42,6 +38,14 @@ export default function CustomCursor() {
         dotRef.current.style.opacity = labelText ? "0" : "1";
       }
     };
+
+    const onMove = (e: MouseEvent) => {
+      target.x = e.clientX;
+      target.y = e.clientY;
+      refreshCursor(e);
+    };
+
+    const onOver = (e: MouseEvent) => refreshCursor(e);
 
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 

@@ -2,7 +2,7 @@ import { PROJECTS } from "@/lib/projects";
 import { notFound } from "next/navigation";
 import BackToWork from "@/components/BackToWork";
 import CaseStudyContent from "@/components/CaseStudyContent";
-import CaseStudyImages from "@/components/CaseStudyImages";
+import CaseStudyImagesGL from "@/components/CaseStudyImagesGL";
 import NextProjectFooter from "@/components/NextProjectFooter";
 
 export const dynamicParams = false;
@@ -56,14 +56,11 @@ export default async function ProjectPage({
           <div data-case-body>
             <div className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28">
               <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
-                {project.title} is a placeholder case study. Real copy
-                describing the project — context, collaborators, scope —
-                lives here. The project visuals below stack full-bleed on
-                the page.
+                {project.description}
               </p>
             </div>
 
-            <CaseStudyImages srcs={blocks} alt={project.title} />
+            <CaseStudyImagesGL srcs={blocks} alt={project.title} />
           </div>
 
           <NextProjectFooter
