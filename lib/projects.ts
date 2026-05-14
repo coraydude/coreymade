@@ -87,10 +87,14 @@ export const PROJECTS: Project[] = [
     description:
       "Bloomfire is an enterprise knowledge management platform used by some of the largest organizations in the world. Enterprise search, an AI authoring assistant, content governance, and analytics in a single product. Customers report 60% faster onboarding and a 9.8% gain in team capacity.",
     images: [
-      "https://images.unsplash.com/photo-1497032628192-86f99bcd76bc?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1600&q=80",
+      "/projects/bloomfire/bloomfire-1.png",
+      "/projects/bloomfire/bloomfire-1-1.png",
+      "/projects/bloomfire/bloomfire-1-2.png",
+      "/projects/bloomfire/bloomfire-1-3.png",
+      "/projects/bloomfire/bloomfire-1-4.png",
+      "/projects/bloomfire/bloomfire-1-5.png",
+      "/projects/bloomfire/bloomfire-1-6.png",
+      "/projects/bloomfire/bloomfire-1-7.png",
     ],
   },
   {
