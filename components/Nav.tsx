@@ -42,7 +42,7 @@ export default function Nav() {
           <span>Social:</span>
           <div className="flex gap-3">
             <a
-              href="https://instagram.com/coreyhaggard"
+              href="https://instagram.com/corey.haggard"
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="Instagram"
@@ -51,13 +51,13 @@ export default function Nav() {
               IG
             </a>
             <a
-              href="https://twitter.com/coreyhaggard"
+              href="https://dribbble.com/coreymade"
               target="_blank"
               rel="noopener noreferrer"
-              data-cursor="Twitter"
+              data-cursor="Dribbble"
               className="hover:opacity-70 transition-opacity"
             >
-              TW
+              DR
             </a>
             <a
               href="https://www.linkedin.com/in/coreyhaggard"

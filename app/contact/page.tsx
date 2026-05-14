@@ -9,14 +9,14 @@ const CHANNELS = [
     href: "mailto:hello@coreymade.design",
   },
   {
-    label: "Twitter / X",
-    value: "@coreyhaggard",
-    href: "https://twitter.com/coreyhaggard",
+    label: "Dribbble",
+    value: "@coreymade",
+    href: "https://dribbble.com/coreymade",
   },
   {
     label: "Instagram",
-    value: "@coreyhaggard",
-    href: "https://instagram.com/coreyhaggard",
+    value: "@corey.haggard",
+    href: "https://instagram.com/corey.haggard",
   },
   {
     label: "LinkedIn",
