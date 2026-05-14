@@ -32,7 +32,7 @@ export default function CaseStudyContent({ children }: Props) {
       duration: 0.6,
       delay: 0.5,
       stagger: 0.7,
-      ease: "power3.out",
+      ease: "power3.inOut",
     });
   }, []);
 

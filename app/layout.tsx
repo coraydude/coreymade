@@ -9,7 +9,6 @@ import TitleProvider from "@/components/TitleProvider";
 import PersistentTitle from "@/components/PersistentTitle";
 import ThemeProvider from "@/components/ThemeProvider";
 import MeshCarousel from "@/components/MeshCarousel";
-import CaseGLHost from "@/components/CaseGLHost";
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);if(!sessionStorage.getItem('carousel-intro-seen')&&window.location.pathname.replace(/\\/$/,'')===''){document.documentElement.classList.add('intro-pending');}}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
 
@@ -74,11 +73,6 @@ export default function RootLayout({
                 disabled, but never unmounts. Returning home is then
                 instant — no shader recompile, no texture re-download. */}
             <MeshCarousel />
-            {/* Persistent WebGL host for the case-study image stacks.
-                Renderer + canvas live forever; CaseStudyImagesGL on
-                each case page only registers slot DOM elements. No
-                shader recompile on case-page navigation. */}
-            <CaseGLHost />
             <PageTransition>
               <Nav />
               {children}

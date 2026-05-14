@@ -21,7 +21,7 @@ export const PROJECTS: Project[] = [
     title: "Dutchie",
     year: "2024",
     category: "Product · Web",
-    image: "/projects/dutchie/cover.jpg",
+    image: "/projects/dutchie/cover.png",
     description:
       "Dutchie is the operating system of the cannabis retail industry. POS, ecommerce, payments, loyalty, and marketing in a single stack. The company powers 6,500+ dispensaries, processes $22B+ in annual sales, and handles peak event traffic of 3,000 orders per minute.",
     images: [
@@ -53,7 +53,7 @@ export const PROJECTS: Project[] = [
     title: "Pima",
     year: "2024",
     category: "Product · Web",
-    image: "/projects/pima/cover.jpg",
+    image: "/projects/pima/cover.png",
     description:
       "Pima is a point of sale system built specifically for apparel retail. Sales, inventory, sizing matrices, season changeovers, returns. A specialist tool for an industry that has spent two decades using software built for someone else.",
     images: [
@@ -68,7 +68,7 @@ export const PROJECTS: Project[] = [
     title: "Sharpz",
     year: "2023",
     category: "Product · Web",
-    image: "/projects/sharpz/cover.jpg",
+    image: "/projects/sharpz/cover.png",
     description:
       "Sharpz is a social network for sports bettors on iOS and Android. Users link their sportsbook so every pick is verified, and a public leaderboard ranks the top 25 and the bottom 25 by real win rate. The wedge is transparency.",
     images: [
@@ -83,7 +83,7 @@ export const PROJECTS: Project[] = [
     title: "Bloomfire",
     year: "2023",
     category: "Product · SaaS",
-    image: "/projects/bloomfire/cover.jpg",
+    image: "/projects/bloomfire/cover.png",
     description:
       "Bloomfire is an enterprise knowledge management platform used by some of the largest organizations in the world. Enterprise search, an AI authoring assistant, content governance, and analytics in a single product. Customers report 60% faster onboarding and a 9.8% gain in team capacity.",
     images: [
@@ -98,7 +98,7 @@ export const PROJECTS: Project[] = [
     title: "Capacity",
     year: "2023",
     category: "Product · AI",
-    image: "/projects/capacity/cover.jpg",
+    image: "/projects/capacity/cover.png",
     description:
       "Capacity is an AI support automation platform used by more than 20,000 companies. It connects 250+ business systems to answer questions, automate repetitive support, and build workflows that previously took quarters of engineering.",
   },
@@ -107,7 +107,7 @@ export const PROJECTS: Project[] = [
     title: "Mindful",
     year: "2023",
     category: "Product · Health",
-    image: "/projects/mindful/cover.jpg",
+    image: "/projects/mindful/cover.png",
     description:
       "Mindful is a healthcare navigation app that brings care plans, appointments, insurance, and provider discovery into a single product. It helps people make sense of their coverage and stay on top of their care.",
     images: [

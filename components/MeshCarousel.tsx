@@ -145,13 +145,18 @@ export default function MeshCarousel() {
     isHomeRef.current = isHome;
   }, [isHome]);
 
-  // Set mount-time opacities BEFORE first paint. Subsequent opacity
+  // Set mount-time opacities AND display BEFORE first paint. Subsequent
   // changes are gsap-driven via playEnter / playExit. Without this, the
   // carousel + counter would briefly paint at CSS-default opacity 1 when
-  // a user lands directly on /work/foo.
+  // a user lands directly on /work/foo. The display: none on non-home
+  // mount also stops the compositor from drawing the full-viewport
+  // canvas every frame — opacity: 0 alone keeps the layer alive.
   useLayoutEffect(() => {
     const container = containerRef.current;
-    if (container) container.style.opacity = isHome ? "1" : "0";
+    if (container) {
+      container.style.opacity = isHome ? "1" : "0";
+      container.style.display = isHome ? "" : "none";
+    }
     // Counter row always starts hidden. On home initial mount the entrance
     // timeline (main useEffect) fades it to 1; on non-home it stays hidden
     // until a playEnter raises it.
@@ -316,9 +321,17 @@ export default function MeshCarousel() {
       const projectIdx = k % N;
 
       const texture = new THREE.Texture();
-      texture.generateMipmaps = false;
-      texture.minFilter = THREE.LinearFilter;
+      // Mipmaps + trilinear filtering. Without these, downscaling a
+      // 1400px source to a ~600px card on screen aliases hard because
+      // bilinear only samples 4 texels per output pixel and misses
+      // everything in between — looks blurry / shimmery. Trilinear
+      // picks the right pre-downscaled mipmap level and blends.
+      texture.generateMipmaps = true;
+      texture.minFilter = THREE.LinearMipmapLinearFilter;
       texture.magFilter = THREE.LinearFilter;
+      // Anisotropic filtering for oblique angles (helps even on flat
+      // cards when the mesh is bent by the velocity displacement).
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
       texture.wrapS = THREE.ClampToEdgeWrapping;
       texture.wrapT = THREE.ClampToEdgeWrapping;
       // Texture stored as sRGB on the GPU → sampling auto-converts to
@@ -854,7 +867,13 @@ export default function MeshCarousel() {
           opacity: 0,
           duration: 0.4,
           ease: "power2.inOut",
-          onComplete: runCharsSink,
+          onComplete: () => {
+            // Detach the full-viewport carousel layer from compositing
+            // entirely while off-home. Without this, the GPU keeps
+            // drawing a 3840×2160 invisible canvas every frame.
+            if (container) container.style.display = "none";
+            runCharsSink();
+          },
         });
       } else {
         runCharsSink();
@@ -868,6 +887,21 @@ export default function MeshCarousel() {
       // chars-rise will fight playEnter's chars-rise.
       entranceTl.kill();
       if (titleTween) titleTween.kill();
+
+      const fadeTargets: HTMLElement[] = [];
+      if (container) fadeTargets.push(container);
+      if (counterRef.current?.parentElement)
+        fadeTargets.push(counterRef.current.parentElement);
+
+      // CRITICAL order: force opacity to 0 BEFORE unhiding the
+      // container. If we set display:"" first, the canvas paints once
+      // at whatever opacity the inline style happens to be in — and any
+      // missed write (gsap clearProps, a stray React reconcile, etc.)
+      // shows up as a snap-on flash instead of a smooth fade.
+      gsap.killTweensOf(fadeTargets);
+      gsap.set(fadeTargets, { opacity: 0 });
+      if (container) container.style.display = "";
+
       // Pre-stage: chars start sunk so the rise is the *second* beat,
       // visible only after the carousel has finished fading in.
       if (titleSplit?.chars && titleSplit.chars.length > 0) {
@@ -882,11 +916,6 @@ export default function MeshCarousel() {
         gsap.killTweensOf(typeRef.current);
         gsap.set(typeRef.current, { opacity: 0 });
       }
-
-      const fadeTargets: HTMLElement[] = [];
-      if (container) fadeTargets.push(container);
-      if (counterRef.current?.parentElement)
-        fadeTargets.push(counterRef.current.parentElement);
 
       const runCharsRise = () => {
         if (titleSplit?.chars && titleSplit.chars.length > 0) {
@@ -914,8 +943,9 @@ export default function MeshCarousel() {
       };
 
       // Staged enter: carousel + counter fade in FIRST, then chars rise.
+      // killTweensOf was already called above, before the gsap.set
+      // that primed opacity:0 — no need to repeat it here.
       if (fadeTargets.length > 0) {
-        gsap.killTweensOf(fadeTargets);
         gsap.to(fadeTargets, {
           opacity: 1,
           duration: 0.4,
@@ -1147,7 +1177,9 @@ export default function MeshCarousel() {
         <div
           ref={titleRef}
           style={{
-            fontSize: "5rem",
+            // Responsive size so longer titles ("Bloomfire", "Capacity")
+            // don't overflow a 375px viewport at the desktop 5rem.
+            fontSize: "clamp(2.5rem, 11vw, 5rem)",
             fontWeight: 400,
             letterSpacing: "-0.01em",
             textTransform: "uppercase",
@@ -1156,6 +1188,7 @@ export default function MeshCarousel() {
             // Tight line-height to crop the empty space below the caps
             // (Anton's metrics are a bit looser than SCHABO's were).
             lineHeight: 0.9,
+            whiteSpace: "nowrap",
           }}
         />
         <span

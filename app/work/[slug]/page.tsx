@@ -2,7 +2,7 @@ import { PROJECTS } from "@/lib/projects";
 import { notFound } from "next/navigation";
 import BackToWork from "@/components/BackToWork";
 import CaseStudyContent from "@/components/CaseStudyContent";
-import CaseStudyImagesGL from "@/components/CaseStudyImagesGL";
+import CaseStudyImages from "@/components/CaseStudyImages";
 import NextProjectFooter from "@/components/NextProjectFooter";
 
 export const dynamicParams = false;
@@ -65,7 +65,9 @@ export default async function ProjectPage({
               </p>
             </div>
 
-            <CaseStudyImagesGL rows={blocks} alt={project.title} />
+            <div data-stage="images">
+              <CaseStudyImages rows={blocks} alt={project.title} />
+            </div>
           </div>
 
           <NextProjectFooter

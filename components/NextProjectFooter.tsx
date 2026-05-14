@@ -33,6 +33,40 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     };
   }, [nextTitle]);
 
+  // Shrink-to-fit so the next-project title never wraps on mobile. The
+  // var-driven default is 22vw on mobile / 14vw on desktop, which can
+  // overflow the viewport on longer names (e.g. "Bloomfire", "Capacity"
+  // at 22vw on a 375px screen). Measure on mount + on resize, mirror
+  // PersistentTitle's fit logic.
+  useEffect(() => {
+    const el = titleRef.current;
+    if (!el) return;
+    const fit = () => {
+      // Reset to the CSS-var size before each measurement so we shrink
+      // FROM the intended size, not from a previous shrunken state.
+      el.style.fontSize = "var(--title-size, 14vw)";
+      const SIDE_PADDING_PX = 48; // px-6 each side
+      const SAFE_FRACTION = 0.96;
+      const containerW = window.innerWidth - SIDE_PADDING_PX;
+      const naturalW = el.scrollWidth;
+      if (naturalW > containerW * SAFE_FRACTION) {
+        const current = parseFloat(getComputedStyle(el).fontSize);
+        el.style.fontSize = `${(current * containerW * SAFE_FRACTION) / naturalW}px`;
+      }
+    };
+    fit();
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    const onResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(fit, 100);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (resizeTimer) clearTimeout(resizeTimer);
+    };
+  }, [nextTitle]);
+
   const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     e.preventDefault();
@@ -43,11 +77,6 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     const upNextLabel = document.querySelector<HTMLElement>(
       "[data-up-next-label]"
     );
-    // The case-study WebGL canvas lives on <body> (outside the
-    // case-content wrapper that gets faded), so include it here or the
-    // old images stay visible at full opacity through the navigation
-    // and flicker to the new ones on mount.
-    const caseGl = document.querySelector<HTMLElement>("[data-case-gl]");
 
     const navigate = () => {
       // Hide PersistentTitle's wrapper across the scroll-reset → router.push
@@ -72,13 +101,13 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     };
 
     // Strictly sequential exit:
-    //   1. Case body + "Up next" label + GL canvas fade. Footer title PERSISTS.
+    //   1. Case body + "Up next" label fade. Footer title PERSISTS.
     //   2. Footer title chars collapse down (per-letter, stagger from edges).
     //   3. Scroll to 0 + router.push.
     const chars = splitRef.current?.chars;
     const tl = gsap.timeline({ onComplete: navigate });
 
-    const fadeTargets = [caseBody, upNextLabel, caseGl].filter(
+    const fadeTargets = [caseBody, upNextLabel].filter(
       (x): x is HTMLElement => x !== null
     );
     if (fadeTargets.length > 0) {
@@ -122,6 +151,7 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
           style={{
             fontFamily: "var(--font-display)",
             fontSize: "var(--title-size, 14vw)",
+            whiteSpace: "nowrap",
           }}
         >
           {nextTitle.replace(/ /g, " ")}

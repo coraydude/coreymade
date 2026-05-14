@@ -49,8 +49,6 @@ function resolveText(
   return "";
 }
 
-const TITLE_SIZE_MOBILE = "22vw";
-const TITLE_SIZE_DESKTOP = "14vw";
 const TITLE_BREAKPOINT = "(min-width: 768px)";
 // Minimum top inset so the title doesn't crash into the nav on tall
 // narrow viewports.
@@ -58,23 +56,38 @@ const MIN_TOP_PX = 96;
 // Gap between the bottom of the title and the start of the case body.
 const TITLE_BODY_GAP_PX = 40;
 
+// Width-driven font-size (what the title naturally wants to be).
+const TITLE_VW_MOBILE = 0.22;
+const TITLE_VW_DESKTOP = 0.14;
+// Case body padding-top — mirrors pt-[42svh] / pt-[50svh] on the case
+// page. Used to compute both the title's top position and the maximum
+// title height that can fit above the body content.
+const CONTENT_TOP_FRAC_MOBILE = 0.42;
+const CONTENT_TOP_FRAC_DESKTOP = 0.5;
+
+// Same min(vw-driven, vh-driven) cap as JS, expressed in CSS so the
+// wrapper height + font-size collapse together when vertical space is
+// the binding constraint (wide-short viewports). Without the vh cap a
+// 14vw title can exceed the available space between the nav and the
+// intro paragraph and overlap the content underneath.
+const TITLE_SIZE_MOBILE = `min(${TITLE_VW_MOBILE * 100}vw, calc(${CONTENT_TOP_FRAC_MOBILE * 100}svh - ${MIN_TOP_PX + TITLE_BODY_GAP_PX}px))`;
+const TITLE_SIZE_DESKTOP = `min(${TITLE_VW_DESKTOP * 100}vw, calc(${CONTENT_TOP_FRAC_DESKTOP * 100}svh - ${MIN_TOP_PX + TITLE_BODY_GAP_PX}px))`;
+
 function computeTopPx(isCase: boolean): number {
   if (typeof window === "undefined") return 0;
+  if (!isCase) return 0;
   const vh = window.innerHeight;
   const vw = window.innerWidth;
   const isDesktop = window.matchMedia(TITLE_BREAKPOINT).matches;
-  const titleHeightPx = vw * (isDesktop ? 0.14 : 0.22);
-  if (!isCase) return 0;
-
-  // Case body padding-top mirrors what's set in app/work/[slug]/page.tsx:
-  //   • Desktop ≥ 768px : pt-[50svh]
-  //   • Mobile           : pt-[42svh]   ← pulled down from 35svh so the
-  //                                       title has room to sit lower
-  //                                       without crowding the back button.
-  // Anchor the title so its bottom sits TITLE_BODY_GAP_PX above content,
-  // with a MIN_TOP_PX floor so we don't tuck under the nav.
-  const contentTopFrac = isDesktop ? 0.5 : 0.42;
+  const vwSize = vw * (isDesktop ? TITLE_VW_DESKTOP : TITLE_VW_MOBILE);
+  const contentTopFrac = isDesktop
+    ? CONTENT_TOP_FRAC_DESKTOP
+    : CONTENT_TOP_FRAC_MOBILE;
   const contentTopPx = vh * contentTopFrac;
+  // Maximum height the title can occupy without crashing into the nav
+  // OR overlapping the body content below — mirrors the CSS min() above.
+  const vhCap = contentTopPx - MIN_TOP_PX - TITLE_BODY_GAP_PX;
+  const titleHeightPx = Math.min(vwSize, vhCap);
   const top = contentTopPx - TITLE_BODY_GAP_PX - titleHeightPx;
   return Math.max(MIN_TOP_PX, top);
 }

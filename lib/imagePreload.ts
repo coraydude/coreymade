@@ -2,9 +2,10 @@
 // image referenced by the case studies so the home loader can actually
 // wait on real bytes instead of being a purely cosmetic animation.
 //
-// The cached HTMLImageElement objects are kept around so CaseGLHost can
-// hand them straight to its WebGL textures on case-page mount — same
-// Image instance → no second decode → faster texImage2D path.
+// MeshCarousel pulls covers through this cache for its WebGL textures
+// (via awaitPreloadedImage). The case-page <img> tags don't read this
+// cache directly, but they benefit indirectly — the preload warms the
+// browser's HTTP + decode cache so the <img> loads are instant.
 
 import { PROJECTS } from "./projects";
 
@@ -82,9 +83,9 @@ export function preloadAllSiteImages(timeoutMs = 8000): Promise<void> {
   return allDonePromise;
 }
 
-// CaseGLHost calls this to grab the already-decoded Image (if any) for a
-// given URL. Returning the same Image instance means Three.js can skip
-// the decode entirely on the texImage2D path.
+// Grab the already-decoded Image (if any) for a given URL. Returning
+// the same Image instance lets a WebGL texture skip the decode on the
+// texImage2D path (used by MeshCarousel for cover textures).
 export function getPreloadedImage(src: string): HTMLImageElement | null {
   const entry = cache.get(src);
   if (!entry) return null;
@@ -92,8 +93,8 @@ export function getPreloadedImage(src: string): HTMLImageElement | null {
   return null;
 }
 
-// Returns a promise for a single URL — used by CaseGLHost to wait on a
-// preload-in-flight (rather than create a second Image and re-fetch).
+// Promise for a single URL — registers with the preload cache so
+// callers don't double-fetch.
 export function awaitPreloadedImage(
   src: string
 ): Promise<HTMLImageElement | null> {
