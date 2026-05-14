@@ -52,9 +52,7 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     const navigate = () => {
       // Hide PersistentTitle's wrapper across the scroll-reset → router.push
       // window so the user doesn't see the OLD page's title briefly when
-      // scroll snaps back to 0. React's re-render on the new route reapplies
-      // `visibility: visible` via the wrapper's style prop, and the layout
-      // effect there has the new chars hidden in place before paint.
+      // scroll snaps back to 0.
       const pt = document.querySelector<HTMLElement>("[data-persistent-title]");
       if (pt) pt.style.visibility = "hidden";
 
@@ -74,11 +72,9 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
     };
 
     // Strictly sequential exit:
-    //   1. Case body + "Up next" label fade. Footer title PERSISTS.
+    //   1. Case body + "Up next" label + GL canvas fade. Footer title PERSISTS.
     //   2. Footer title chars collapse down (per-letter, stagger from edges).
     //   3. Scroll to 0 + router.push.
-    // On the new case page PersistentTitle.tsx then animates its own
-    // chars up (mirror image, step 4).
     const chars = splitRef.current?.chars;
     const tl = gsap.timeline({ onComplete: navigate });
 
@@ -89,7 +85,7 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
       tl.to(fadeTargets, {
         opacity: 0,
         duration: 0.4,
-        ease: "power3.in",
+        ease: "power2.inOut",
       });
     }
 
@@ -128,7 +124,7 @@ export default function NextProjectFooter({ nextSlug, nextTitle }: Props) {
             fontSize: "var(--title-size, 14vw)",
           }}
         >
-          {nextTitle}
+          {nextTitle.replace(/ /g, " ")}
         </div>
       </Link>
     </footer>

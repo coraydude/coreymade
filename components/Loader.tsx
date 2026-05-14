@@ -3,15 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
+const WORD = "COREYMADE";
+const TAGLINE_LINES = [
+  "Corey Haggard.",
+  "UX Designer,",
+  "and Creative Director",
+];
+
 export default function Loader() {
   const [show, setShow] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLSpanElement>(null);
-  const wordRef = useRef<HTMLSpanElement>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  const topMetaRef = useRef<HTMLDivElement>(null);
-  const bottomMetaRef = useRef<HTMLDivElement>(null);
-  const dispMapRef = useRef<SVGFEDisplacementMapElement>(null);
+  const wordRef = useRef<HTMLDivElement>(null);
+  const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
+  // One ref per char in WORD; index 0 is the "C" that stays.
+  const charRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   useEffect(() => {
     if (sessionStorage.getItem("loader-seen")) return;
@@ -21,12 +26,8 @@ export default function Loader() {
   useEffect(() => {
     if (!show) return;
     const container = containerRef.current;
-    const counter = counterRef.current;
     const word = wordRef.current;
-    const bar = barRef.current;
-    const topMeta = topMetaRef.current;
-    const bottomMeta = bottomMetaRef.current;
-    if (!container || !counter || !word || !bar) return;
+    if (!container || !word) return;
 
     sessionStorage.setItem("loader-seen", "1");
 
@@ -34,25 +35,29 @@ export default function Loader() {
     const prevOverflow = html.style.overflow;
     html.style.overflow = "hidden";
 
-    const STAGES = [
-      "BOOT",
-      "LOAD",
-      "WIRE",
-      "READY",
-    ];
+    // Snapshot each letter's natural width so we can tween width → 0 from
+    // an explicit pixel start (you can't animate width: auto → 0).
+    const widths = charRefs.current.map(
+      (el) => el?.getBoundingClientRect().width ?? 0
+    );
+    charRefs.current.forEach((el, i) => {
+      if (el) gsap.set(el, { width: widths[i] });
+    });
 
-    const dispState = { scale: 0 };
-    const applyDisp = () => {
-      if (dispMapRef.current) {
-        dispMapRef.current.setAttribute("scale", dispState.scale.toFixed(1));
-      }
-    };
+    // OREYMADE — every letter except the C, in reverse order so the
+    // collapse starts at the rightmost letter and folds inward.
+    const collapseTargets = charRefs.current.slice(1).reverse();
 
-    const state = { progress: 0 };
-    gsap.set(bar, { scaleX: 0, transformOrigin: "left center" });
-    gsap.set([topMeta, bottomMeta], { opacity: 0, y: 12 });
-    gsap.set(counter, { opacity: 0 });
-    gsap.set(word, { opacity: 0 });
+    const lines = lineRefs.current.filter(
+      (el): el is HTMLDivElement => el !== null
+    );
+    // Lines start aligned (no cascade) and translucent. The cascade
+    // emerges as they get "pulled" leftward at different rates during
+    // the OREYMADE collapse.
+    gsap.set(lines, { opacity: 0, x: 0 });
+    gsap.set(word, { opacity: 0, y: 14 });
+
+    const EASE = "power3.inOut";
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -61,98 +66,79 @@ export default function Loader() {
       },
     });
 
-    tl.to([topMeta, bottomMeta], {
+    // 1. Word rises.
+    tl.to(word, {
       opacity: 1,
       y: 0,
-      duration: 0.4,
-      ease: "power2.out",
-      stagger: 0.08,
+      duration: 0.9,
+      ease: EASE,
     });
 
+    // 2. Tagline fades in — all three lines aligned, no cascade yet.
     tl.to(
-      counter,
-      { opacity: 1, duration: 0.25, ease: "power2.out" },
-      "<+=0.1"
-    );
-    tl.to(
-      word,
-      { opacity: 1, duration: 0.25, ease: "power2.out" },
-      "<"
-    );
-
-    tl.to(
-      state,
+      lines,
       {
-        progress: 100,
-        duration: 2.2,
-        ease: "expo.out",
-        onUpdate: () => {
-          const pct = Math.floor(state.progress);
-          counter.textContent = String(pct).padStart(3, "0");
-          const stageIdx = Math.min(
-            STAGES.length - 1,
-            Math.floor((pct / 100) * STAGES.length)
-          );
-          word.textContent = STAGES[stageIdx];
-          bar.style.transform = `scaleX(${pct / 100})`;
-        },
+        opacity: 1,
+        duration: 0.55,
+        ease: "power2.out",
       },
-      "<"
+      "-=0.35"
     );
 
-    tl.to(
-      dispState,
-      {
-        scale: 80,
-        duration: 0.6,
-        ease: "power2.in",
-        onUpdate: applyDisp,
-      },
-      "-=0.6"
-    );
+    // 3. Hold so the user can read.
+    tl.to({}, { duration: 0.8 });
 
-    tl.to({}, { duration: 0.18 });
+    // 4. The collapse + the pull happen concurrently. OREYMADE folds
+    // into the C, and the tagline lines drift left at different rates:
+    // top line gets pulled hardest and fastest; middle drifts a bit;
+    // bottom barely moves. The differential motion is what produces
+    // the staircase cascade.
+    const collapseLabel = "collapse";
+    tl.add(collapseLabel);
 
     tl.to(
-      dispState,
+      collapseTargets,
       {
-        scale: 220,
-        duration: 0.35,
-        ease: "power2.in",
-        onUpdate: applyDisp,
-      },
-      ">-=0.05"
-    );
-
-    tl.to(
-      [counter, word, topMeta, bottomMeta, bar],
-      {
+        width: 0,
         opacity: 0,
-        duration: 0.25,
-        ease: "power2.in",
+        duration: 1.2,
+        ease: EASE,
+        stagger: 0.08,
       },
-      "<+=0.1"
+      collapseLabel
     );
 
+    // All three lines travel to the SAME final position (left-flush)
+    // but at different speeds, so during the motion they fan out into a
+    // temporary cascade and then settle back into alignment by the time
+    // the collapse finishes.
+    const FINAL_X = -160;
     tl.to(
-      container,
-      {
-        clipPath: "inset(0 0 100% 0)",
-        duration: 0.75,
-        ease: "expo.inOut",
-      },
-      "<-=0.05"
+      lines[0],
+      { x: FINAL_X, duration: 0.9, ease: "power3.out" },
+      collapseLabel
+    );
+    tl.to(
+      lines[1],
+      { x: FINAL_X, duration: 1.3, ease: "power3.out" },
+      collapseLabel
+    );
+    tl.to(
+      lines[2],
+      { x: FINAL_X, duration: 1.7, ease: "power3.out" },
+      collapseLabel
     );
 
-    tl.to(
-      dispState,
-      {
-        scale: 0,
-        duration: 0.4,
-        onUpdate: applyDisp,
-      },
-      "<"
-    );
+    // 5. Hold on the final composition.
+    tl.to({}, { duration: 0.8 });
+
+    // 6. Lift off.
+    tl.to(container, {
+      opacity: 0,
+      y: -12,
+      duration: 0.7,
+      ease: EASE,
+    });
 
     return () => {
       tl.kill();
@@ -166,95 +152,60 @@ export default function Loader() {
     <div
       ref={containerRef}
       className="fixed inset-0 z-[9500] pointer-events-none overflow-hidden"
-      style={{
-        background: "#050505",
-        clipPath: "inset(0 0 0 0)",
-      }}
+      style={{ background: "var(--background)" }}
     >
-      <svg
-        aria-hidden="true"
-        width="0"
-        height="0"
-        style={{ position: "absolute" }}
-      >
-        <defs>
-          <filter
-            id="loader-displace"
-            x="-20%"
-            y="-20%"
-            width="140%"
-            height="140%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.015 0.025"
-              numOctaves={2}
-              seed={7}
-              result="noise"
-            />
-            <feDisplacementMap
-              ref={dispMapRef}
-              in="SourceGraphic"
-              in2="noise"
-              scale="0"
-              xChannelSelector="R"
-              yChannelSelector="G"
-            />
-          </filter>
-        </defs>
-      </svg>
-
-      <div
-        ref={topMetaRef}
-        className="absolute top-10 md:top-14 left-6 md:left-10 right-6 md:right-10 flex items-baseline justify-between text-[11px] md:text-[12px] uppercase tracking-[0.18em] text-white/60 font-mono"
-      >
-        <span>CH/24 — INDEX 0001</span>
-        <span>EST. 2026</span>
-      </div>
-
-      <div
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ filter: "url(#loader-displace)" }}
-      >
-        <span
-          ref={counterRef}
-          className="font-display uppercase text-white leading-none tabular-nums"
-          style={{
-            fontSize: "clamp(8rem, 28vw, 26rem)",
-            letterSpacing: "0.04em",
-          }}
-        >
-          000
-        </span>
-      </div>
-
-      <div
-        ref={bottomMetaRef}
-        className="absolute bottom-16 md:bottom-20 left-6 md:left-10 right-6 md:right-10 flex items-end justify-between gap-6"
-      >
-        <div className="flex flex-col gap-4 text-[11px] md:text-[12px] uppercase tracking-[0.18em] text-white/60 font-mono">
-          <span>Loading experience</span>
-          <span
+      <div className="absolute inset-0 flex items-center justify-center px-6 md:px-10">
+        <div className="flex items-center gap-6 md:gap-10 max-w-full">
+          {/* COREYMADE — each letter is an inline-block span whose width
+              we'll snapshot then tween to 0 in the timeline above. */}
+          <div
             ref={wordRef}
-            className="text-white text-[16px] md:text-[22px] font-display tracking-[-0.01em] leading-none"
+            className="flex items-center font-display uppercase text-foreground"
+            style={{
+              fontSize: "clamp(80px, 16vw, 260px)",
+              lineHeight: 0.9,
+              letterSpacing: "-0.01em",
+            }}
           >
-            BOOT
-          </span>
-        </div>
-        <div className="text-[11px] md:text-[12px] uppercase tracking-[0.18em] text-white/60 font-mono text-right leading-[1.6]">
-          Corey Haggard
-          <br />
-          Digital Designer
-        </div>
-      </div>
+            {WORD.split("").map((ch, i) => (
+              <span
+                key={i}
+                ref={(el) => {
+                  charRefs.current[i] = el;
+                }}
+                style={{
+                  display: "inline-block",
+                  overflow: "hidden",
+                  whiteSpace: "pre",
+                }}
+              >
+                {ch}
+              </span>
+            ))}
+          </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white/10">
-        <div
-          ref={barRef}
-          className="h-full w-full bg-white origin-left"
-          style={{ transform: "scaleX(0)" }}
-        />
+          {/* Tagline starts left-aligned (all lines flush). The cascade
+              shape emerges from the differential leftward pull applied
+              during the collapse, not from initial layout. */}
+          <div
+            className="text-foreground leading-[1.15] shrink-0"
+            style={{
+              fontFamily: "var(--font-inter)",
+              fontSize: "clamp(28px, 4vw, 72px)",
+            }}
+          >
+            {TAGLINE_LINES.map((line, i) => (
+              <div
+                key={i}
+                ref={(el) => {
+                  lineRefs.current[i] = el;
+                }}
+              >
+                {line}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

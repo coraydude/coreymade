@@ -8,11 +8,16 @@ import {
   useRef,
   useState,
 } from "react";
-import { usePathname } from "next/navigation";
-import gsap from "gsap";
+import { useRouter } from "next/navigation";
+
+type Phase = "idle" | "in" | "out";
 
 type Ctx = {
-  cover: (label: string) => Promise<void>;
+  // Single navigation entry point. Owns the cover, the route swap, and
+  // the uncover. Returns true if accepted, false if a transition is
+  // already in flight (and the caller should not call router.push).
+  navigate: (href: string, label: string) => boolean;
+  phase: Phase;
 };
 
 const TransitionContext = createContext<Ctx | null>(null);
@@ -25,95 +30,79 @@ export function usePageTransition() {
   return ctx;
 }
 
+// Timing constants — match the CSS in globals.css (.curtain).
+const IN_MS = 950; // slats finish dropping; route swaps here
+const OUT_MS = 900; // slats finish lifting; phase returns to idle
+
 export default function PageTransition({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLDivElement>(null);
-  const [isCovered, setIsCovered] = useState(false);
-  const pathname = usePathname();
-  const lastPathRef = useRef(pathname);
-
+  const router = useRouter();
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [label, setLabel] = useState("");
+  // Latest phase, read by `navigate()` so we can synchronously reject a
+  // second call without waiting for a re-render.
+  const phaseRef = useRef<Phase>("idle");
   useEffect(() => {
-    gsap.set(overlayRef.current, { clipPath: "inset(100% 0% 0% 0%)" });
-    gsap.set(labelRef.current, { yPercent: 40, opacity: 0 });
-  }, []);
+    phaseRef.current = phase;
+  }, [phase]);
 
-  const cover = useCallback((label: string) => {
-    return new Promise<void>((resolve) => {
-      if (!overlayRef.current || !labelRef.current) {
-        resolve();
-        return;
-      }
-      labelRef.current.textContent = label;
-      gsap.set(labelRef.current, { yPercent: 40, opacity: 0 });
+  const inTimerRef = useRef<number | null>(null);
+  const outTimerRef = useRef<number | null>(null);
 
-      const tl = gsap.timeline({
-        defaults: { ease: "expo.inOut" },
-        onComplete: () => {
-          setIsCovered(true);
-          resolve();
-        },
-      });
+  const navigate = useCallback(
+    (href: string, nextLabel: string): boolean => {
+      if (phaseRef.current !== "idle") return false;
 
-      tl.to(overlayRef.current, {
-        clipPath: "inset(0% 0% 0% 0%)",
-        duration: 0.7,
-      }).to(
-        labelRef.current,
-        {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.55,
-          ease: "expo.out",
-        },
-        "-=0.4"
-      );
-    });
-  }, []);
+      phaseRef.current = "in";
+      setLabel(nextLabel);
+      setPhase("in");
 
-  useEffect(() => {
-    if (lastPathRef.current === pathname) return;
-    lastPathRef.current = pathname;
-    if (!isCovered) return;
+      if (inTimerRef.current) window.clearTimeout(inTimerRef.current);
+      inTimerRef.current = window.setTimeout(() => {
+        // Slats are fully closed — swap route + scroll under cover.
+        window.scrollTo(0, 0);
+        router.push(href);
+        phaseRef.current = "out";
+        setPhase("out");
 
-    window.scrollTo(0, 0);
+        if (outTimerRef.current) window.clearTimeout(outTimerRef.current);
+        outTimerRef.current = window.setTimeout(() => {
+          phaseRef.current = "idle";
+          setPhase("idle");
+        }, OUT_MS);
+      }, IN_MS);
 
-    const tl = gsap.timeline({
-      onComplete: () => setIsCovered(false),
-    });
+      return true;
+    },
+    [router]
+  );
 
-    tl.to(labelRef.current, {
-      yPercent: -40,
-      opacity: 0,
-      duration: 0.45,
-      ease: "expo.in",
-    }).to(
-      overlayRef.current,
-      {
-        clipPath: "inset(0% 0% 100% 0%)",
-        duration: 0.75,
-        ease: "expo.inOut",
-      },
-      "-=0.2"
-    );
-  }, [pathname, isCovered]);
+  useEffect(
+    () => () => {
+      if (inTimerRef.current) window.clearTimeout(inTimerRef.current);
+      if (outTimerRef.current) window.clearTimeout(outTimerRef.current);
+    },
+    []
+  );
+
+  const curtainCls =
+    phase === "in"
+      ? "curtain is-in"
+      : phase === "out"
+      ? "curtain is-out"
+      : "curtain";
 
   return (
-    <TransitionContext.Provider value={{ cover }}>
+    <TransitionContext.Provider value={{ navigate, phase }}>
       {children}
-      <div
-        ref={overlayRef}
-        className="fixed inset-0 z-[9000] bg-black flex items-center justify-center pointer-events-none overflow-hidden"
-        aria-hidden="true"
-      >
-        <div
-          ref={labelRef}
-          className="text-foreground tracking-[-0.01em] uppercase text-[22vw] md:text-[14vw] leading-none whitespace-nowrap font-display"
-          style={{ fontFamily: "var(--font-display)" }}
-        />
+      <div className={curtainCls} aria-hidden="true">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="slat" />
+        ))}
+        <div className="label">{label}</div>
       </div>
     </TransitionContext.Provider>
   );

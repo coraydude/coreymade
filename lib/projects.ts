@@ -5,10 +5,12 @@ export type Project = {
   category: string;
   // Carousel cover (also used as a fallback if `images` is empty).
   image: string;
-  // Case-study image stack. Each entry renders as a full-bleed 16:9
-  // block on the slug page. Leave empty/undefined and the page will
-  // show the cover image once.
-  images?: string[];
+  // Case-study image stack. Each entry is either:
+  //   • a string → renders as a single full-bleed 16:9 block.
+  //   • a string[] → renders as a single row with N images side by
+  //     side (e.g. ["a.png", "b.png"] for a two-up row).
+  // Leave empty/undefined and the page will show the cover image once.
+  images?: (string | string[])[];
   // Intro paragraph rendered at the top of the case-study page.
   description?: string;
 };
@@ -19,14 +21,31 @@ export const PROJECTS: Project[] = [
     title: "Dutchie",
     year: "2024",
     category: "Product · Web",
-    image: "/projects/dutchie.png",
+    image: "/projects/dutchie/cover.jpg",
     description:
       "Dutchie is the operating system of the cannabis retail industry. POS, ecommerce, payments, loyalty, and marketing in a single stack. The company powers 6,500+ dispensaries, processes $22B+ in annual sales, and handles peak event traffic of 3,000 orders per minute.",
     images: [
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=1600&q=80",
+      "/projects/dutchie/desktop-01-overview.png",
+      [
+        "/projects/dutchie/mobile-02-product.png",
+        "/projects/dutchie/mobile-03-brand.png",
+      ],
+      "/projects/dutchie/desktop-04-loyalty.png",
+      [
+        "/projects/dutchie/mobile-04-loyalty.png",
+        "/projects/dutchie/mobile-05-discounts.png",
+      ],
+      "/projects/dutchie/desktop-06-purchase-orders.png",
+      [
+        "/projects/dutchie/mobile-06-purchase-orders.png",
+        "/projects/dutchie/mobile-07-segments.png",
+      ],
+      "/projects/dutchie/desktop-08-marketing.png",
+      [
+        "/projects/dutchie/mobile-08-marketing.png",
+        "/projects/dutchie/mobile-09-workflow.png",
+      ],
+      "/projects/dutchie/desktop-10-segment-builder.png",
     ],
   },
   {
@@ -34,8 +53,7 @@ export const PROJECTS: Project[] = [
     title: "Pima",
     year: "2024",
     category: "Product · Web",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+    image: "/projects/pima/cover.jpg",
     description:
       "Pima is a point of sale system built specifically for apparel retail. Sales, inventory, sizing matrices, season changeovers, returns. A specialist tool for an industry that has spent two decades using software built for someone else.",
     images: [
@@ -46,28 +64,11 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: "letter-clash",
-    title: "Letter Clash",
-    year: "2024",
-    category: "Game · Mobile",
-    image:
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=80",
-    description:
-      "Letter Clash is a mobile word game on iOS and Android. It blends Yatzee's dice mechanics with the direct play of Words With Friends. Luck on the roll, skill on the play, matches short enough to fit in the gaps of a normal day.",
-    images: [
-      "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1600&q=80",
-    ],
-  },
-  {
     slug: "sharpz",
     title: "Sharpz",
     year: "2023",
     category: "Product · Web",
-    image:
-      "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=1600&q=80",
+    image: "/projects/sharpz/cover.jpg",
     description:
       "Sharpz is a social network for sports bettors on iOS and Android. Users link their sportsbook so every pick is verified, and a public leaderboard ranks the top 25 and the bottom 25 by real win rate. The wedge is transparency.",
     images: [
@@ -82,7 +83,7 @@ export const PROJECTS: Project[] = [
     title: "Bloomfire",
     year: "2023",
     category: "Product · SaaS",
-    image: "/projects/bloomfire.webp",
+    image: "/projects/bloomfire/cover.jpg",
     description:
       "Bloomfire is an enterprise knowledge management platform used by some of the largest organizations in the world. Enterprise search, an AI authoring assistant, content governance, and analytics in a single product. Customers report 60% faster onboarding and a 9.8% gain in team capacity.",
     images: [
@@ -93,35 +94,28 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: "capacity",
+    title: "Capacity",
+    year: "2023",
+    category: "Product · AI",
+    image: "/projects/capacity/cover.jpg",
+    description:
+      "Capacity is an AI support automation platform used by more than 20,000 companies. It connects 250+ business systems to answer questions, automate repetitive support, and build workflows that previously took quarters of engineering.",
+  },
+  {
     slug: "mindful",
     title: "Mindful",
     year: "2023",
     category: "Product · Health",
-    image: "/projects/mindful/health-home.png",
+    image: "/projects/mindful/cover.jpg",
     description:
       "Mindful is a healthcare navigation app that brings care plans, appointments, insurance, and provider discovery into a single product. It helps people make sense of their coverage and stay on top of their care.",
     images: [
-      "/projects/mindful/health-home.png",
-      "/projects/mindful/browse.png",
-      "/projects/mindful/appointments.png",
-      "/projects/mindful/care-plan.png",
-      "/projects/mindful/insurance.png",
-    ],
-  },
-  {
-    slug: "newstore",
-    title: "NewStore",
-    year: "2022",
-    category: "Product · Commerce",
-    image:
-      "https://images.unsplash.com/photo-1483653364400-eedcfb9f1f88?auto=format&fit=crop&w=1600&q=80",
-    description:
-      "NewStore is a mobile first omnichannel commerce platform. POS, order management, clienteling, store inventory, and branded consumer apps in a single cloud product, used by 85+ premium retail brands across 55+ countries. Brands on the platform see roughly a 30% sales lift.",
-    images: [
-      "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1604740114043-e6a04e80b1e6?auto=format&fit=crop&w=1600&q=80",
+      "/projects/mindful/health-home.jpg",
+      "/projects/mindful/browse.jpg",
+      "/projects/mindful/appointments.jpg",
+      "/projects/mindful/care-plan.jpg",
+      "/projects/mindful/insurance.jpg",
     ],
   },
 ];

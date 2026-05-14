@@ -19,13 +19,29 @@ export default function CustomCursor() {
     let hoverScale = 1;
     let hoverScaleEased = 1;
     let labelText = "";
+    // Cache the rendered label width so the tick doesn't read
+    // offsetWidth every frame (which forces layout). Only re-measured
+    // when textContent actually changes inside refreshCursor.
+    let labelWidth = 0;
+    // Cache the last element returned by closest() so a stationary
+    // pointer (or one sliding within the same data-cursor zone) skips
+    // both the DOM walk and the DOM writes.
+    let lastEl: HTMLElement | null = null;
+    // Track the last applied transform values per element so the tick
+    // can short-circuit DOM writes when nothing has actually changed
+    // (i.e. cursor truly idle and lerps have fully settled).
+    let lastDotX = 0,
+      lastDotY = 0;
+    let lastRingX = 0,
+      lastRingY = 0,
+      lastRingScale = 0;
+    let lastRingForLabelX = 0,
+      lastRingForLabelY = 0;
 
-    // Re-evaluate the data-cursor label from the element currently under
-    // the pointer. Called both on element entry (mouseover) and every
-    // mousemove so callers can toggle `data-cursor` on a stable element
-    // (e.g. a fixed full-viewport container) and have the label react.
     const refreshCursor = (e: MouseEvent) => {
-      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
+      const el = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]") ?? null;
+      if (el === lastEl) return;
+      lastEl = el;
       const nextLabel = el ? el.dataset.cursor || "" : "";
       if (nextLabel === labelText) return;
       hoverScale = el ? 2.2 : 1;
@@ -33,6 +49,8 @@ export default function CustomCursor() {
       if (labelRef.current) {
         labelRef.current.textContent = labelText;
         labelRef.current.style.opacity = labelText ? "1" : "0";
+        // Single layout read per text change instead of every frame.
+        labelWidth = labelText ? labelRef.current.offsetWidth : 0;
       }
       if (dotRef.current) {
         dotRef.current.style.opacity = labelText ? "0" : "1";
@@ -57,17 +75,28 @@ export default function CustomCursor() {
       ring.y = lerp(ring.y, target.y, 0.18);
       hoverScaleEased = lerp(hoverScaleEased, hoverScale, 0.18);
 
-      if (dotRef.current) {
+      if (dotRef.current && (dot.x !== lastDotX || dot.y !== lastDotY)) {
         dotRef.current.style.transform = `translate3d(${dot.x}px, ${dot.y}px, 0) translate(-50%, -50%)`;
+        lastDotX = dot.x;
+        lastDotY = dot.y;
       }
-      if (ringRef.current) {
+      if (
+        ringRef.current &&
+        (ring.x !== lastRingX ||
+          ring.y !== lastRingY ||
+          hoverScaleEased !== lastRingScale)
+      ) {
         ringRef.current.style.transform = `translate3d(${ring.x}px, ${ring.y}px, 0) translate(-50%, -50%) scale(${hoverScaleEased})`;
+        lastRingX = ring.x;
+        lastRingY = ring.y;
+        lastRingScale = hoverScaleEased;
       }
-      if (labelRef.current) {
-        // Cache the label's measured width so we know exactly when it'd
-        // run off the right edge and need to flip to the left side of
-        // the cursor instead of trailing it.
-        const labelWidth = labelRef.current.offsetWidth || 0;
+      if (
+        labelRef.current &&
+        (ring.x !== lastRingForLabelX || ring.y !== lastRingForLabelY)
+      ) {
+        // labelWidth is captured once per text change above — no
+        // layout-thrashing offsetWidth read per frame.
         const flipLeft =
           ring.x + 28 + labelWidth > window.innerWidth - 12;
         if (flipLeft) {
@@ -78,6 +107,8 @@ export default function CustomCursor() {
         } else {
           labelRef.current.style.transform = `translate3d(${ring.x + 28}px, ${ring.y - 8}px, 0)`;
         }
+        lastRingForLabelX = ring.x;
+        lastRingForLabelY = ring.y;
       }
       rafId = requestAnimationFrame(tick);
     };

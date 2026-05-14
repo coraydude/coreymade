@@ -2,7 +2,7 @@
 
 html[data-theme="dark"] {
   --background: #000000;
-  --foreground: #ededed;
+  --foreground: #f1ecdf;
   --muted: #777777;
   --rule: rgba(255, 255, 255, 0.12);
   color-scheme: dark;
@@ -17,11 +17,11 @@ html[data-theme="light"] {
 }
 
 html:not([data-theme]) {
-  --background: #000000;
-  --foreground: #ededed;
-  --muted: #777777;
-  --rule: rgba(255, 255, 255, 0.12);
-  color-scheme: dark;
+  --background: #f1ecdf;
+  --foreground: #0a0a0a;
+  --muted: #555555;
+  --rule: rgba(0, 0, 0, 0.14);
+  color-scheme: light;
 }
 
 /* Kill iOS Safari's gray tap-highlight overlay that flashes on link taps,
@@ -87,7 +87,7 @@ html.lenis body {
 }
 
 ::selection {
-  background: #ededed;
+  background: #f1ecdf;
   color: #050505;
 }
 
@@ -117,4 +117,97 @@ html.lenis body {
 ::view-transition-new(*) {
   animation-duration: 720ms;
   animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ─────────────── Nav slide-down on first home visit ─────────────── */
+
+/* Default state on every paint — nav transition baseline. */
+[data-nav] {
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
+}
+
+/* `intro-pending` is set by the inline THEME_INIT_SCRIPT before paint
+   on the very first home visit per session. MeshCarousel removes it
+   when the cards start spreading, which lets the CSS transition fade
+   + slide the nav down from above the viewport in one beat. */
+html.intro-pending [data-nav] {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* ─────────────── Venetian curtain page transition ─────────────── */
+
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483600;
+  pointer-events: none;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  /* Stretch the single row to fill the viewport so each slat has a
+     height to scaleY against — without this the row collapses to 0px
+     and the slats are invisible no matter what scaleY they hold. */
+  grid-template-rows: 1fr;
+}
+
+.curtain .slat {
+  /* Slats invert against the theme — dark mode shows light slats,
+     light mode shows dark slats. */
+  background: var(--foreground);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 700ms cubic-bezier(0.7, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.curtain.is-in .slat {
+  transform: scaleY(1);
+}
+
+.curtain.is-out .slat {
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+/* in: stagger left → right */
+.curtain.is-in .slat:nth-child(1) { transition-delay: 0ms; }
+.curtain.is-in .slat:nth-child(2) { transition-delay: 40ms; }
+.curtain.is-in .slat:nth-child(3) { transition-delay: 80ms; }
+.curtain.is-in .slat:nth-child(4) { transition-delay: 120ms; }
+.curtain.is-in .slat:nth-child(5) { transition-delay: 160ms; }
+.curtain.is-in .slat:nth-child(6) { transition-delay: 200ms; }
+.curtain.is-in .slat:nth-child(7) { transition-delay: 240ms; }
+.curtain.is-in .slat:nth-child(8) { transition-delay: 280ms; }
+
+/* out: stagger right → left (the wave returns) */
+.curtain.is-out .slat:nth-child(1) { transition-delay: 280ms; }
+.curtain.is-out .slat:nth-child(2) { transition-delay: 240ms; }
+.curtain.is-out .slat:nth-child(3) { transition-delay: 200ms; }
+.curtain.is-out .slat:nth-child(4) { transition-delay: 160ms; }
+.curtain.is-out .slat:nth-child(5) { transition-delay: 120ms; }
+.curtain.is-out .slat:nth-child(6) { transition-delay: 80ms; }
+.curtain.is-out .slat:nth-child(7) { transition-delay: 40ms; }
+.curtain.is-out .slat:nth-child(8) { transition-delay: 0ms; }
+
+.curtain .label {
+  position: absolute;
+  bottom: 8vh;
+  left: clamp(20px, 3vw, 56px);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(48px, 8vw, 128px);
+  text-transform: uppercase;
+  line-height: 0.94;
+  letter-spacing: -0.005em;
+  /* Label sits on the inverted slat, so it takes the page background
+     color — flips automatically with theme. */
+  color: var(--background);
+  opacity: 0;
+  transition: opacity 400ms;
+}
+
+.curtain.is-in .label {
+  opacity: 1;
+  transition-delay: 320ms;
 }

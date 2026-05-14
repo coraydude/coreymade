@@ -3,7 +3,10 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Nav() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[8600] px-6 md:px-10 py-5 text-white mix-blend-difference pointer-events-none">
+    <header
+      data-nav
+      className="fixed top-0 left-0 right-0 z-[8600] px-6 md:px-10 py-5 text-[#f1ecdf] mix-blend-difference pointer-events-none"
+    >
       <div className="grid grid-cols-12 gap-6 items-start text-[11px] uppercase tracking-[0.04em] font-mono leading-[1.35] [&_a]:pointer-events-auto [&_button]:pointer-events-auto">
         <TransitionLink
           href="/"
@@ -21,11 +24,11 @@ export default function Nav() {
         <div className="hidden md:flex md:col-span-3 flex-col">
           <span>Available for freelance</span>
           <a
-            href="mailto:hello@coreyhaggard.com"
+            href="mailto:hello@coreymade.design"
             data-cursor="Write"
             className="underline underline-offset-[3px] hover:opacity-70 transition-opacity w-fit"
           >
-            hello@coreyhaggard.com
+            hello@coreymade.design
           </a>
         </div>
 

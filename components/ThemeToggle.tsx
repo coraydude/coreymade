@@ -19,7 +19,7 @@ export default function ThemeToggle() {
       suppressHydrationWarning
       data-cursor={showDark ? "Light" : "Dark"}
       aria-label={`Switch to ${showDark ? "light" : "dark"} mode`}
-      className="text-[11px] uppercase tracking-[0.04em] font-mono text-white hover:opacity-70 transition-opacity"
+      className="text-[11px] uppercase tracking-[0.04em] font-mono text-[#f1ecdf] hover:opacity-70 transition-opacity"
     >
       <span suppressHydrationWarning>{showDark ? "Lgt" : "Drk"}</span>
     </button>

@@ -35,8 +35,10 @@ export default async function ProjectPage({
   if (!project) notFound();
 
   // Use the project's own image stack; fall back to the cover if no
-  // explicit case-study images are set in lib/projects.ts.
-  const blocks =
+  // explicit case-study images are set in lib/projects.ts. Entries can
+  // be a string (single full-bleed row) or a string[] (two-up or N-up
+  // row, side by side).
+  const blocks: (string | string[])[] =
     project.images && project.images.length > 0
       ? project.images
       : [project.image];
@@ -54,13 +56,16 @@ export default async function ProjectPage({
             this content top with a 40px gap. */}
         <div className="pt-[42svh] md:pt-[50svh]">
           <div data-case-body>
-            <div className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28">
+            <div
+              data-stage="intro"
+              className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28"
+            >
               <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
                 {project.description}
               </p>
             </div>
 
-            <CaseStudyImagesGL srcs={blocks} alt={project.title} />
+            <CaseStudyImagesGL rows={blocks} alt={project.title} />
           </div>
 
           <NextProjectFooter

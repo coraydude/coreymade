@@ -6,16 +6,21 @@ export const metadata = {
 };
 
 const PRACTICE = [
-  "Product design",
-  "Motion direction",
-  "Brand systems",
-  "Front-end engineering",
+  "Product direction",
+  "Design systems",
+  "AI-first product design",
+  "Motion & interaction",
+  "Prototyping at production fidelity",
+  "Front-end implementation",
 ];
 
 const RECOGNITION = [
-  { name: "Awwwards Site of the Day", year: "2024" },
-  { name: "FWA", year: "2024" },
-  { name: "Communication Arts", year: "2023" },
+  { name: "Awwwards Honorable Mention", year: "2020" },
+  { name: "CSS Design Awards Special Kudos", year: "2020" },
+  { name: "Lapa Ninja Feature", year: "2020" },
+  { name: "Awwwards Honorable Mention (Mossio)", year: "2019" },
+  { name: "Awwwards Honorable Mention (Mossio)", year: "2015" },
+  { name: "Awwwards Nominee", year: "2013" },
 ];
 
 export default function AboutPage() {
@@ -37,7 +42,7 @@ export default function AboutPage() {
           style={{
             fontFamily: "var(--font-display)",
             fontSize: "clamp(64px, 18vw, 320px)",
-            lineHeight: 0.82,
+            lineHeight: 0.92,
           }}
         >
           I make
@@ -52,15 +57,14 @@ export default function AboutPage() {
       <section className="px-6 md:px-10 py-20 md:py-28 border-t border-rule">
         <div className="max-w-[1400px] space-y-8">
           <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
-            I work at the seam of product, motion, and brand — shipping
-            interfaces that hold up to scrutiny: precise, calm, and
-            memorable in the small moments.
+            Product designer and creative technologist with 17+ years
+            building digital experiences for startups and global brands.
           </p>
           <p className="text-[16px] md:text-[18px] leading-[1.55] text-foreground/70 font-light max-w-3xl">
-            Recent collaborations have ranged from early-stage product teams
-            to in-house brand systems. I work end to end — strategy, IA,
-            interaction, motion direction, and front-end implementation
-            when it sharpens the result.
+            Previously Design Lead at Dutchie and co-founder at Mossio.
+            Today my work focuses on AI-assisted product design,
+            interaction systems, motion, and implementation, closing the
+            gap between concept and shipped product.
           </p>
         </div>
       </section>
@@ -127,9 +131,9 @@ export default function AboutPage() {
           </div>
           <div className="md:col-span-9">
             <a
-              href="mailto:hello@coreyhaggard.com"
+              href="mailto:hello@coreymade.design"
               data-cursor="Write"
-              className="block uppercase tracking-[-0.01em] leading-[0.9] hover:opacity-70 transition-opacity"
+              className="block uppercase tracking-[-0.01em] leading-[0.95] hover:opacity-70 transition-opacity"
               style={{
                 fontFamily: "var(--font-display)",
                 fontSize: "clamp(40px, 9vw, 160px)",
@@ -137,7 +141,7 @@ export default function AboutPage() {
             >
               hello@
               <br />
-              coreyhaggard.com
+              coreymade.design
             </a>
           </div>
         </div>

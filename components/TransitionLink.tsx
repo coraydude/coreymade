@@ -19,9 +19,9 @@ export default function TransitionLink({
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { cover } = usePageTransition();
+  const { navigate } = usePageTransition();
 
-  const onClick = async (e: MouseEvent<HTMLAnchorElement>) => {
+  const onClick = (e: MouseEvent<HTMLAnchorElement>) => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
     if (href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
 
@@ -29,14 +29,21 @@ export default function TransitionLink({
     // (Next.js static export adds them; usePathname doesn't always).
     const norm = (s: string) => s.replace(/\/$/, "") || "/";
     if (norm(href) === norm(pathname)) {
-      // Already on this page — block the click entirely so the cover
-      // animation doesn't fire (with no route change to reveal against,
-      // the overlay gets stuck on screen).
+      // Already on this page — block to prevent firing the curtain
+      // without a route change to reveal against.
       e.preventDefault();
       return;
     }
 
     e.preventDefault();
+
+    // Case-study pages own their own enter/exit choreography (chars
+    // rising, content fade). Don't layer the curtain on top of them —
+    // just push the route directly.
+    if (href.startsWith("/work/")) {
+      router.push(href);
+      return;
+    }
 
     const text =
       label ??
@@ -44,8 +51,7 @@ export default function TransitionLink({
         ? children
         : (e.currentTarget.textContent ?? "").trim() || "→");
 
-    await cover(text);
-    router.push(href);
+    navigate(href, text);
   };
 
   return (

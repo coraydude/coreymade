@@ -14,17 +14,13 @@ export default function BackToWork() {
   const fadeAndNavigate = () => {
     const slug = pathname.split("/").filter(Boolean).pop() || "";
     if (slug) {
-      window.__returnSlug = slug;
+      // MeshCarousel persists across navigation now, so its internal
+      // progress already points at this card — no window-level bridge
+      // needed. We still set the active slug so PersistentTitle and
+      // other context consumers agree on what's "active".
       setActiveProjectSlug(slug);
     }
 
-    // Outgoing transition (case → home):
-    //   • PersistentTitle chars sink down + fade (mirror of MeshCarousel's
-    //     home-title exit).
-    //   • Case-study content fades.
-    //   • Navigate after the title chars have left.
-    // On the home page MeshCarousel then animates its bottom title chars
-    // up from below on mount, completing the loop.
     const chars = document.querySelectorAll<HTMLElement>(
       "[data-persistent-title] .char"
     );
@@ -52,7 +48,7 @@ export default function BackToWork() {
       gsap.to(fadeEls, {
         opacity: 0,
         duration: 0.4,
-        ease: "power3.in",
+        ease: "power2.inOut",
       });
     }
 

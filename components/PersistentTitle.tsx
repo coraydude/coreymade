@@ -92,6 +92,11 @@ export default function PersistentTitle() {
   const prevPathIsCaseRef = useRef<boolean | null>(null);
   const titleSplitRef = useRef<SplitType | null>(null);
   const titleTweenRef = useRef<gsap.core.Tween | null>(null);
+  // Tracks whether the previous render was suppressed (home). Used so
+  // the enter effect can detect a home → case transition and force a
+  // re-create even when the destination project's title hasn't changed
+  // since the user's previous visit to it.
+  const wasSuppressedRef = useRef(true);
 
   const pathname = usePathname();
   const { activeProjectSlug } = useTitle();
@@ -120,6 +125,35 @@ export default function PersistentTitle() {
     return () => mql.removeEventListener("change", apply);
   }, []);
 
+  // Refit the title when the viewport changes. Same shrink-to-fit logic
+  // as the text-change effect, but runs on every resize so the title
+  // doesn't overflow when the user shrinks the window.
+  useEffect(() => {
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+    const refit = () => {
+      const el = currentElRef.current;
+      if (!el) return;
+      el.style.fontSize = "var(--title-size)";
+      const containerW = window.innerWidth - 48;
+      const naturalW = el.scrollWidth;
+      const SAFE_FRACTION = 0.92;
+      if (naturalW > containerW * SAFE_FRACTION) {
+        const currentSize = parseFloat(getComputedStyle(el).fontSize);
+        const fittedSize = (currentSize * containerW * SAFE_FRACTION) / naturalW;
+        el.style.fontSize = `${fittedSize}px`;
+      }
+    };
+    const onResize = () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(refit, 100);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (resizeTimer) clearTimeout(resizeTimer);
+    };
+  }, []);
+
   // Create the initial title element synchronously before paint so the
   // case-study page doesn't render one frame without a title (which would
   // make the morphed home title appear to disappear on navigation).
@@ -144,10 +178,26 @@ export default function PersistentTitle() {
   // before the browser paints — no flash of plain text between SplitType
   // revert and the chars getting their opacity:0 inline style.
   useIsoLayoutEffect(() => {
-    if (suppress) return;
+    if (suppress) {
+      wasSuppressedRef.current = true;
+      return;
+    }
     const el = currentElRef.current;
     if (!el) return;
-    if (prevTextRef.current === text && titleSplitRef.current) return;
+    // Re-create even when text hasn't changed if we're coming OUT of
+    // suppress (home → case again on the same project). The previous
+    // case visit left the chars in their exit "sunk" state and
+    // BackToWork's home detour didn't revert the split, so without this
+    // force-recreate the title silently stays invisible.
+    const cameFromSuppress = wasSuppressedRef.current;
+    wasSuppressedRef.current = false;
+    if (
+      prevTextRef.current === text &&
+      titleSplitRef.current &&
+      !cameFromSuppress
+    ) {
+      return;
+    }
     prevTextRef.current = text;
 
     if (titleTweenRef.current) titleTweenRef.current.kill();
@@ -156,7 +206,29 @@ export default function PersistentTitle() {
     // outgoing chars vanishing and the new chars being hidden.
     gsap.set(el, { opacity: 0 });
     if (titleSplitRef.current) titleSplitRef.current.revert();
-    el.textContent = text;
+    // Replace regular spaces with non-breaking spaces so multi-word
+    // titles ("Letter Clash") keep their space. SplitType wraps each
+    // char (including a plain " ") in an inline-block span, and an
+    // inline-block whose content is a regular space collapses to zero
+    // width. An nbsp char never collapses.
+    el.textContent = text.replace(/ /g, " ");
+
+    // Auto-fit the title to viewport width. Reset to the var-driven
+    // default first, then measure scrollWidth and scale font-size down
+    // to a px value if the title would overflow the available space.
+    // Without this, long titles (Letter Clash, Marketplace, NewStore)
+    // crash into the side padding.
+    el.style.fontSize = "var(--title-size)";
+    const SIDE_PADDING_PX = 48; // px-6 each side
+    const SAFE_FRACTION = 0.92; // keep a touch of breathing room
+    const containerW = window.innerWidth - SIDE_PADDING_PX;
+    const naturalW = el.scrollWidth;
+    if (naturalW > containerW * SAFE_FRACTION) {
+      const currentFontSize = parseFloat(getComputedStyle(el).fontSize);
+      const fittedSize = (currentFontSize * containerW * SAFE_FRACTION) / naturalW;
+      el.style.fontSize = `${fittedSize}px`;
+    }
+
     titleSplitRef.current = new SplitType(el, { types: "chars" });
     const chars = titleSplitRef.current.chars;
     if (!chars || chars.length === 0) {
@@ -250,10 +322,16 @@ export default function PersistentTitle() {
       wrapper.style.transform = "translate3d(0,0,0)";
       return;
     }
+    let ticking = false;
     const apply = () => {
-      if (wrapperRef.current) {
-        wrapperRef.current.style.transform = `translate3d(0,${-window.scrollY}px,0)`;
-      }
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        if (wrapperRef.current) {
+          wrapperRef.current.style.transform = `translate3d(0,${-window.scrollY}px,0)`;
+        }
+        ticking = false;
+      });
     };
     apply();
     window.addEventListener("scroll", apply, { passive: true });

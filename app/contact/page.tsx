@@ -5,8 +5,8 @@ export const metadata = {
 const CHANNELS = [
   {
     label: "Email",
-    value: "hello@coreyhaggard.com",
-    href: "mailto:hello@coreyhaggard.com",
+    value: "hello@coreymade.design",
+    href: "mailto:hello@coreymade.design",
   },
   {
     label: "Twitter / X",
@@ -34,7 +34,7 @@ export default function ContactPage() {
         style={{
           fontFamily: "var(--font-display)",
           fontSize: "clamp(72px, 17vw, 320px)",
-          lineHeight: 0.85,
+          lineHeight: 0.95,
         }}
       >
         Let&rsquo;s work

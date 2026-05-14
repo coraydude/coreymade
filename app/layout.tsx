@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
-import localFont from "next/font/local";
+import { Anton, Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
@@ -8,10 +7,11 @@ import Nav from "@/components/Nav";
 import PageTransition from "@/components/PageTransition";
 import TitleProvider from "@/components/TitleProvider";
 import PersistentTitle from "@/components/PersistentTitle";
-import Loader from "@/components/Loader";
 import ThemeProvider from "@/components/ThemeProvider";
+import MeshCarousel from "@/components/MeshCarousel";
+import CaseGLHost from "@/components/CaseGLHost";
 
-const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
+const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);if(!sessionStorage.getItem('carousel-intro-seen')&&window.location.pathname.replace(/\\/$/,'')===''){document.documentElement.classList.add('intro-pending');}}catch(e){document.documentElement.setAttribute('data-theme','light');}})();`;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,20 +29,10 @@ const inter = Inter({
   weight: ["400", "500", "700"],
 });
 
-const schabo = localFont({
-  src: [
-    {
-      path: "../public/fonts/SCHABO-XCondensed.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../public/fonts/SCHABO-XCondensed.woff",
-      weight: "400",
-      style: "normal",
-    },
-  ],
+const anton = Anton({
   variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -66,7 +56,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${schabo.variable} ${inter.variable} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${anton.variable} ${inter.variable} antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -76,9 +66,19 @@ export default function RootLayout({
         <ThemeProvider>
           <SmoothScroll />
           <CustomCursor />
-          <Loader />
           <TitleProvider>
             <PersistentTitle />
+            {/* MeshCarousel lives at the layout level so its WebGL
+                renderer + textures persist across navigation. On non-
+                home routes it fades to opacity 0 with pointer-events
+                disabled, but never unmounts. Returning home is then
+                instant — no shader recompile, no texture re-download. */}
+            <MeshCarousel />
+            {/* Persistent WebGL host for the case-study image stacks.
+                Renderer + canvas live forever; CaseStudyImagesGL on
+                each case page only registers slot DOM elements. No
+                shader recompile on case-page navigation. */}
+            <CaseGLHost />
             <PageTransition>
               <Nav />
               {children}
