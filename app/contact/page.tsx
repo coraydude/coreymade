@@ -20,8 +20,8 @@ const CHANNELS = [
   },
   {
     label: "LinkedIn",
-    value: "in/coreyhaggard",
-    href: "https://www.linkedin.com/in/coreyhaggard",
+    value: "in/coreymade",
+    href: "https://www.linkedin.com/in/coreymade/",
   },
 ];
 

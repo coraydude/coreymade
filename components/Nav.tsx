@@ -60,7 +60,7 @@ export default function Nav() {
               DR
             </a>
             <a
-              href="https://www.linkedin.com/in/coreyhaggard"
+              href="https://www.linkedin.com/in/coreymade/"
               target="_blank"
               rel="noopener noreferrer"
               data-cursor="LinkedIn"
