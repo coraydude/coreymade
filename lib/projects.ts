@@ -57,10 +57,14 @@ export const PROJECTS: Project[] = [
     description:
       "Pima is a point of sale system built specifically for apparel retail. Sales, inventory, sizing matrices, season changeovers, returns. A specialist tool for an industry that has spent two decades using software built for someone else.",
     images: [
-      "https://images.unsplash.com/photo-1431576901776-e539bd916ba2?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
+      "/projects/pima/desktop-1.png",
+      "/projects/pima/desktop-2.png",
+      "/projects/pima/desktop-3.png",
+      "/projects/pima/desktop-4.png",
+      [
+        "/projects/pima/mobile-1.png",
+        "/projects/pima/mobile-2.png",
+      ],
     ],
   },
   {
