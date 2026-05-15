@@ -25,27 +25,18 @@ export const PROJECTS: Project[] = [
     description:
       "Dutchie is the operating system of the cannabis retail industry. POS, ecommerce, payments, loyalty, and marketing in a single stack. The company powers 6,500+ dispensaries, processes $22B+ in annual sales, and handles peak event traffic of 3,000 orders per minute.",
     images: [
-      "/projects/dutchie/desktop-01-overview.png",
+      "/projects/dutchie/desktop-1.png",
+      "/projects/dutchie/desktop-1-1.png",
+      "/projects/dutchie/desktop-1-2.png",
+      "/projects/dutchie/desktop-1-3.png",
+      "/projects/dutchie/desktop-1-4.png",
+      "/projects/dutchie/desktop-1-5.png",
+      "/projects/dutchie/desktop-1-6.png",
       [
-        "/projects/dutchie/mobile-02-product.png",
-        "/projects/dutchie/mobile-03-brand.png",
+        "/projects/dutchie/mobile-1.png",
+        "/projects/dutchie/mobile-2.png",
+        "/projects/dutchie/mobile-3.png",
       ],
-      "/projects/dutchie/desktop-04-loyalty.png",
-      [
-        "/projects/dutchie/mobile-04-loyalty.png",
-        "/projects/dutchie/mobile-05-discounts.png",
-      ],
-      "/projects/dutchie/desktop-06-purchase-orders.png",
-      [
-        "/projects/dutchie/mobile-06-purchase-orders.png",
-        "/projects/dutchie/mobile-07-segments.png",
-      ],
-      "/projects/dutchie/desktop-08-marketing.png",
-      [
-        "/projects/dutchie/mobile-08-marketing.png",
-        "/projects/dutchie/mobile-09-workflow.png",
-      ],
-      "/projects/dutchie/desktop-10-segment-builder.png",
     ],
   },
   {
