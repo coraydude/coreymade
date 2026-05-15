@@ -67,10 +67,10 @@ export const PROJECTS: Project[] = [
     description:
       "Sharpz is a social network for sports bettors on iOS and Android. Users link their sportsbook so every pick is verified, and a public leaderboard ranks the top 25 and the bottom 25 by real win rate. The wedge is transparency.",
     images: [
-      "https://images.unsplash.com/photo-1551836022-deb4988cc6c0?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1559028012-481c04fa702d?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1551836022-aadb801c60ee?auto=format&fit=crop&w=1600&q=80",
-      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1600&q=80",
+      "/projects/sharpz/desktop-1.png",
+      "/projects/sharpz/desktop-2.png",
+      "/projects/sharpz/desktop-3.png",
+      "/projects/sharpz/desktop-4.png",
     ],
   },
   {
