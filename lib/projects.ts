@@ -35,8 +35,8 @@ export const PROJECTS: Project[] = [
       [
         "/projects/dutchie/mobile-1.png",
         "/projects/dutchie/mobile-2.png",
-        "/projects/dutchie/mobile-3.png",
       ],
+      "/projects/dutchie/mobile-3.png",
     ],
   },
   {
