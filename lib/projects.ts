@@ -93,15 +93,6 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: "capacity",
-    title: "Capacity",
-    year: "2023",
-    category: "Product · AI",
-    image: "/projects/capacity/cover.png",
-    description:
-      "Capacity is an AI support automation platform used by more than 20,000 companies. It connects 250+ business systems to answer questions, automate repetitive support, and build workflows that previously took quarters of engineering.",
-  },
-  {
     slug: "mindful",
     title: "Mindful",
     year: "2023",
