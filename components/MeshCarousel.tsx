@@ -145,18 +145,19 @@ export default function MeshCarousel() {
     isHomeRef.current = isHome;
   }, [isHome]);
 
-  // Set mount-time opacities AND display BEFORE first paint. Subsequent
-  // changes are gsap-driven via playEnter / playExit. Without this, the
-  // carousel + counter would briefly paint at CSS-default opacity 1 when
-  // a user lands directly on /work/foo. The display: none on non-home
-  // mount also stops the compositor from drawing the full-viewport
-  // canvas every frame — opacity: 0 alone keeps the layer alive.
+  // Set mount-time opacities BEFORE first paint. Subsequent changes are
+  // gsap-driven via playEnter / playExit. Without this, the carousel +
+  // counter would briefly paint at CSS-default opacity 1 when a user
+  // lands directly on /work/foo.
+  //
+  // Note: we DON'T use display:none for off-home — iOS Safari (and some
+  // Android browsers) reclaim the WebGL context when a canvas is
+  // display:none, and returning home then shows a dead canvas. Since
+  // CaseGLHost is gone there's only one persistent WebGL canvas left,
+  // and compositing it at opacity 0 costs sub-1ms/frame (per trace).
   useLayoutEffect(() => {
     const container = containerRef.current;
-    if (container) {
-      container.style.opacity = isHome ? "1" : "0";
-      container.style.display = isHome ? "" : "none";
-    }
+    if (container) container.style.opacity = isHome ? "1" : "0";
     // Counter row always starts hidden. On home initial mount the entrance
     // timeline (main useEffect) fades it to 1; on non-home it stays hidden
     // until a playEnter raises it.
@@ -861,19 +862,18 @@ export default function MeshCarousel() {
       };
 
       // Staged exit: carousel + counter fade out FIRST, then chars sink.
+      // We deliberately do NOT set display:none on the container after
+      // the fade — iOS Safari can reclaim the WebGL context when the
+      // canvas is display:none, so returning to home would show a dead
+      // carousel. With only one persistent WebGL canvas in the app, the
+      // compositing cost of an opacity:0 layer is sub-1ms/frame.
       if (fadeTargets.length > 0) {
         gsap.killTweensOf(fadeTargets);
         gsap.to(fadeTargets, {
           opacity: 0,
           duration: 0.4,
           ease: "power2.inOut",
-          onComplete: () => {
-            // Detach the full-viewport carousel layer from compositing
-            // entirely while off-home. Without this, the GPU keeps
-            // drawing a 3840×2160 invisible canvas every frame.
-            if (container) container.style.display = "none";
-            runCharsSink();
-          },
+          onComplete: runCharsSink,
         });
       } else {
         runCharsSink();
@@ -893,14 +893,12 @@ export default function MeshCarousel() {
       if (counterRef.current?.parentElement)
         fadeTargets.push(counterRef.current.parentElement);
 
-      // CRITICAL order: force opacity to 0 BEFORE unhiding the
-      // container. If we set display:"" first, the canvas paints once
-      // at whatever opacity the inline style happens to be in — and any
-      // missed write (gsap clearProps, a stray React reconcile, etc.)
-      // shows up as a snap-on flash instead of a smooth fade.
+      // Force opacity to 0 before the fade-in tween starts, so any
+      // missed inline-style write (gsap clearProps, a stray React
+      // reconcile, etc.) can't snap the canvas to a non-zero opacity
+      // and show as a flash before the smooth fade kicks in.
       gsap.killTweensOf(fadeTargets);
       gsap.set(fadeTargets, { opacity: 0 });
-      if (container) container.style.display = "";
 
       // Pre-stage: chars start sunk so the rise is the *second* beat,
       // visible only after the carousel has finished fading in.
