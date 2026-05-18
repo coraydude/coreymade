@@ -58,16 +58,48 @@ export default async function ProjectPage({
           <div data-case-body>
             <div
               data-stage="intro"
-              className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28"
+              className="px-6 md:px-10 max-w-[1600px] mx-auto pb-20 md:pb-28 space-y-6 md:space-y-8"
             >
-              <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
-                {project.description}
-              </p>
+              {(Array.isArray(project.description)
+                ? project.description
+                : project.description
+                ? [project.description]
+                : []
+              ).map((para, i) => (
+                <p
+                  key={i}
+                  className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light"
+                >
+                  {para}
+                </p>
+              ))}
             </div>
 
             <div data-stage="images">
               <CaseStudyImages rows={blocks} alt={project.title} />
             </div>
+
+            {project.results && (
+              <div
+                data-stage="results"
+                className="px-6 md:px-10 max-w-[1600px] mx-auto pt-20 md:pt-28 space-y-6 md:space-y-8"
+              >
+                <div className="text-[12px] uppercase tracking-[0.18em] text-muted">
+                  Results
+                </div>
+                {(Array.isArray(project.results)
+                  ? project.results
+                  : [project.results]
+                ).map((para, i) => (
+                  <p
+                    key={i}
+                    className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light"
+                  >
+                    {para}
+                  </p>
+                ))}
+              </div>
+            )}
           </div>
 
           <NextProjectFooter

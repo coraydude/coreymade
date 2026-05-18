@@ -5,15 +5,6 @@ export const metadata = {
   title: "About — Corey Haggard",
 };
 
-const PRACTICE = [
-  "Product direction",
-  "Design systems",
-  "AI-first product design",
-  "Motion & interaction",
-  "Prototyping at production fidelity",
-  "Front-end implementation",
-];
-
 const RECOGNITION = [
   { name: "Awwwards Honorable Mention", year: "2020" },
   { name: "CSS Design Awards Special Kudos", year: "2020" },
@@ -45,11 +36,11 @@ export default function AboutPage() {
             lineHeight: 0.92,
           }}
         >
-          I make
+          Strategy
           <br />
-          things
+          that
           <br />
-          inevitable.
+          ships.
         </h1>
       </section>
 
@@ -57,34 +48,51 @@ export default function AboutPage() {
       <section className="px-6 md:px-10 py-20 md:py-28 border-t border-rule">
         <div className="max-w-[1400px] space-y-8">
           <p className="text-[28px] md:text-[48px] leading-[1.18] tracking-[-0.01em] text-foreground/85 font-light">
-            Product designer and creative technologist with 17+ years
-            building digital experiences for startups and global brands.
+            Product designer leading zero-to-one products, platform
+            consolidations, and the design practices that ship after I
+            roll off.
           </p>
           <p className="text-[16px] md:text-[18px] leading-[1.55] text-foreground/70 font-light max-w-3xl">
-            Previously Design Lead at Dutchie and co-founder at Mossio.
-            Today my work focuses on AI-assisted product design,
-            interaction systems, motion, and implementation, closing the
-            gap between concept and shipped product.
+            I&apos;m brought in for the moments where a product needs its
+            first shape, a platform needs to consolidate into one, or a
+            design team needs the rituals and systems to ship without me.
+            I work directly with founders and product leads to set the
+            vision, make the strategic calls, and translate them into
+            shipped work, staying close enough to the build to keep the
+            spec honest. Previously Design Lead at Dutchie and cofounder
+            of Mossio, an independent studio I ran for nine years
+            shipping product work for funded startups and Fortune 500
+            brands.
           </p>
         </div>
       </section>
 
-      {/* ─────────────── Practice + Clients ─────────────── */}
+      {/* ─────────────── How I work ─────────────── */}
       <section className="px-6 md:px-10 py-20 md:py-28 border-t border-rule">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-12 max-w-[1400px]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
           <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
-            Practice
+            How I work
           </div>
-          <ul className="md:col-span-3 space-y-2 text-[16px] md:text-[18px] tracking-[-0.005em]">
-            {PRACTICE.map((p) => (
-              <li key={p}>{p}</li>
-            ))}
-          </ul>
+          <p className="md:col-span-9 max-w-3xl text-[16px] md:text-[18px] leading-[1.55] text-foreground/85 font-light">
+            I take on engagements where the design problem is also a
+            business problem, and I work directly with founders and
+            product leads to make the calls that affect both. The work
+            isn&apos;t judged by launch. It&apos;s judged by whether the
+            team can extend the system without me, which means I spend as
+            much time on the rituals, decision frameworks, and craft bar
+            that outlive the engagement as I do on the screens
+            themselves.
+          </p>
+        </div>
+      </section>
 
+      {/* ─────────────── Selected clients ─────────────── */}
+      <section className="px-6 md:px-10 py-20 md:py-28 border-t border-rule">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-x-10 gap-y-6 max-w-[1400px]">
           <div className="md:col-span-3 text-[11px] uppercase tracking-[0.18em] text-muted">
             Selected clients
           </div>
-          <ul className="md:col-span-3 space-y-2 text-[16px] md:text-[18px] tracking-[-0.005em]">
+          <ul className="md:col-span-9 max-w-3xl space-y-2 text-[16px] md:text-[18px] tracking-[-0.005em]">
             {PROJECTS.map((p) => (
               <li key={p.slug}>
                 <TransitionLink
