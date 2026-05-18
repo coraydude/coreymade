@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Anton, Geist, Geist_Mono, Inter } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import CustomCursor from "@/components/CustomCursor";
@@ -80,6 +81,11 @@ export default function RootLayout({
           </TitleProvider>
         </ThemeProvider>
       </body>
+      {/* GA4 — only loads in production builds. Handles SPA route
+          changes automatically; no need for a route-change listener. */}
+      {process.env.NODE_ENV === "production" && (
+        <GoogleAnalytics gaId="G-F9RBLQV74Y" />
+      )}
     </html>
   );
 }

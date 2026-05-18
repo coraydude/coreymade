@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@next/third-parties": "^16.2.6",
     "@types/three": "^0.184.1",
     "clsx": "^2.1.1",
     "gsap": "^3.15.0",
